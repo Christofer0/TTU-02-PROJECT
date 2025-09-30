@@ -102,7 +102,16 @@ def add_signature_to_pdf(pdf_path, signature_path, qr_path, output_path):
         return False, f"Error processing PDF: {str(e)}"
 
 def get_full_file_path(relative_path, base_folder='uploads'):
-    """Get full file path from relative path"""
+    """
+    Get full file path from relative path
+    
+    Args:
+        relative_path: Path relatif file (misal: 'permohonan/file.pdf' atau 'qr_xxx.png')
+        base_folder: 'uploads', 'signed', atau 'qr_codes'
+    
+    Returns:
+        str: Full absolute path
+    """
     if base_folder == 'uploads':
         base_path = current_app.config['UPLOAD_FOLDER']
     elif base_folder == 'signed':
