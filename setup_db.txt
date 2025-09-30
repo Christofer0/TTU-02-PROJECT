@@ -1,0 +1,28 @@
+# ===========================
+# Database Setup Commands
+# ===========================
+
+# 1. Initialize the database (run once)
+# flask db init
+
+# 2. Create initial migration
+# flask db migrate -m "Initial migration"
+
+# 3. Apply migration to database
+# flask db upgrade
+
+# 4. For subsequent schema changes
+# flask db migrate -m "Description of changes"
+# flask db upgrade
+
+
+
+# ==============================
+# Database Setup Commands Views
+# ==============================
+
+# 1. flask db migrate -m "add user_profiles view"
+# 2. Edit file hasil migrate tadi, tambahkan kode op.execute("CREATE VIEW ...") seperti di atas.
+     (karena Alembic nggak bisa auto-detect view, jadi harus manual nulis query-nya)
+# 3. flask db upgrade
+

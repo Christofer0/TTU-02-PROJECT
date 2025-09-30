@@ -1,0 +1,219 @@
+"""Add view and trigger
+
+Revision ID: 5257dd84e928
+Revises: 216d27ee8200
+Create Date: 2025-09-20 02:07:23.675132
+
+"""
+from alembic import op
+import sqlalchemy as sa
+
+
+# revision identifiers, used by Alembic.
+revision = '5257dd84e928'
+down_revision = '216d27ee8200'
+branch_labels = None
+depends_on = None
+
+
+def upgrade():
+    op.execute (
+    """
+    -- =========================
+    -- INDEXES
+    -- =========================
+    CREATE INDEX idx_users_role ON users(role);
+    CREATE INDEX idx_users_nomor_induk ON users(nomor_induk);
+    CREATE INDEX idx_permohonan_status ON permohonan(status_permohonan);
+    CREATE INDEX idx_permohonan_mahasiswa ON permohonan(id_mahasiswa);
+    CREATE INDEX idx_permohonan_dosen ON permohonan(id_dosen);
+    CREATE INDEX idx_notifications_user ON notifications(user_id, is_read);
+    CREATE INDEX idx_history_permohonan ON history(permohonan_id);
+
+    -- =========================
+    -- TRIGGERS untuk updated_at
+    -- =========================
+    CREATE OR REPLACE FUNCTION update_updated_at_column()
+    RETURNS TRIGGER AS $$
+    BEGIN
+        NEW.updated_at = CURRENT_TIMESTAMP;
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER update_fakultas_updated_at BEFORE UPDATE ON fakultas
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+    CREATE TRIGGER update_program_studi_updated_at BEFORE UPDATE ON program_studi
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+    CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+    CREATE TRIGGER update_permohonan_updated_at BEFORE UPDATE ON permohonan
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+    -- =========================
+    -- VIEWS
+    -- =========================
+
+    -- VIEW Mahasiswa
+    CREATE VIEW v_mahasiswa AS
+    SELECT 
+        u.id as user_id,
+        u.nomor_induk,
+        u.nama,
+        u.email,
+        u.no_hp,
+        u.is_active,
+        m.semester,
+        f.id as fakultas_id,
+        f.nama_fakultas,
+        ps.id as program_studi_id,
+        ps.nama_prodi,
+        u.created_at,
+        u.last_login
+    FROM users u
+    JOIN mahasiswa m ON u.id = m.user_id
+    JOIN fakultas f ON m.fakultas_id = f.id
+    JOIN program_studi ps ON m.program_studi_id = ps.id
+    WHERE u.role = 'mahasiswa';
+
+    -- VIEW Dosen
+    CREATE VIEW v_dosen AS
+    SELECT 
+        u.id as user_id,
+        u.nomor_induk,
+        u.nama,
+        u.email,
+        u.no_hp,
+        u.is_active,
+        d.gelar_depan,
+        d.gelar_belakang,
+        CASE 
+            WHEN d.gelar_depan IS NOT NULL AND d.gelar_belakang IS NOT NULL THEN
+                CONCAT(d.gelar_depan, ' ', u.nama, ' ', d.gelar_belakang)
+            WHEN d.gelar_depan IS NOT NULL THEN
+                CONCAT(d.gelar_depan, ' ', u.nama)
+            WHEN d.gelar_belakang IS NOT NULL THEN
+                CONCAT(u.nama, ' ', d.gelar_belakang)
+            ELSE u.nama
+        END as nama_lengkap,
+        d.jabatan,
+        f.id as fakultas_id,
+        f.nama_fakultas,
+        d.ttd_path,
+        d.signature_upload_at,
+        u.created_at,
+        u.last_login
+    FROM users u
+    JOIN dosen d ON u.id = d.user_id
+    LEFT JOIN fakultas f ON d.fakultas_id = f.id
+    WHERE u.role = 'dosen';
+
+    -- VIEW Admin
+    CREATE VIEW v_admin AS
+    SELECT 
+        u.id as user_id,
+        u.nomor_induk,
+        u.nama,
+        u.email,
+        u.no_hp,
+        u.is_active,
+        u.created_at,
+        u.last_login
+    FROM users u
+    WHERE u.role = 'admin';
+
+    -- VIEW Permohonan Detail
+    CREATE VIEW v_permohonan_detail AS
+    SELECT 
+        p.id,
+        p.judul,
+        p.deskripsi,
+        jp.nama_jenis_permohonan,
+        -- Data Mahasiswa
+        vm.nomor_induk as nomor_induk_mahasiswa,
+        vm.nama as nama_mahasiswa,
+        vm.email as email_mahasiswa,
+        vm.nama_fakultas as fakultas_mahasiswa,
+        vm.nama_prodi,
+        vm.semester,
+        -- Data Dosen
+        vd.nomor_induk as nomor_induk_dosen,
+        vd.nama_lengkap as nama_dosen,
+        vd.email as email_dosen,
+        vd.jabatan as jabatan_dosen,
+        vd.nama_fakultas as fakultas_dosen,
+        vd.ttd_path as ttd_dosen,
+        -- Data Permohonan
+        p.status_permohonan,
+        p.file_name,
+        p.file_path,
+        p.file_signed_path,
+        p.komentar,
+        p.komentar_penolakan,
+        p.qr_code_data,
+        p.qr_code_path,
+        p.created_at as tanggal_pengajuan,
+        p.approved_at as tanggal_disetujui,
+        p.signed_at as tanggal_ditandatangani,
+        p.rejected_at as tanggal_ditolak,
+        p.updated_at
+    FROM permohonan p
+    JOIN jenis_permohonan jp ON p.id_jenis_permohonan = jp.id
+    JOIN v_mahasiswa vm ON p.id_mahasiswa = vm.user_id
+    JOIN v_dosen vd ON p.id_dosen = vd.user_id;
+
+    -- VIEW Dashboard Statistik
+    CREATE VIEW v_dashboard_stats AS
+    SELECT 
+        (SELECT COUNT(*) FROM v_mahasiswa WHERE is_active = true) as total_mahasiswa_aktif,
+        (SELECT COUNT(*) FROM v_dosen WHERE is_active = true) as total_dosen_aktif,
+        (SELECT COUNT(*) FROM permohonan WHERE status_permohonan = 'pending') as permohonan_pending,
+        (SELECT COUNT(*) FROM permohonan WHERE status_permohonan = 'disetujui') as permohonan_disetujui,
+        (SELECT COUNT(*) FROM permohonan WHERE status_permohonan = 'ditolak') as permohonan_ditolak,
+        (SELECT COUNT(*) FROM permohonan WHERE status_permohonan = 'ditandatangani') as permohonan_ditandatangani,
+        (SELECT COUNT(*) FROM permohonan WHERE status_permohonan = 'selesai') as permohonan_selesai,
+        (SELECT COUNT(*) FROM permohonan WHERE DATE(created_at) = CURRENT_DATE) as permohonan_hari_ini;
+
+    -- VIEW Notifikasi belum dibaca
+    CREATE VIEW v_notifications_unread AS
+    SELECT 
+        n.user_id,
+        u.nama,
+        u.role,
+        COUNT(*) as unread_count
+    FROM notifications n
+    JOIN users u ON n.user_id = u.id
+    WHERE n.is_read = false
+    GROUP BY n.user_id, u.nama, u.role;
+
+    -- VIEW History Detail
+    CREATE VIEW v_history_detail AS
+    SELECT 
+        h.id,
+        h.permohonan_id,
+        p.judul as judul_permohonan,
+        jp.nama_jenis_permohonan,
+        vm.nomor_induk as nomor_induk_mahasiswa,
+        vm.nama as nama_mahasiswa,
+        vd.nama_lengkap as nama_dosen,
+        h.action,
+        h.signature_hash,
+        h.qr_code_path,
+        h.signed_at,
+        h.komentar_permohonan,
+        h.created_at
+    FROM history h
+    LEFT JOIN permohonan p ON h.permohonan_id = p.id
+    LEFT JOIN jenis_permohonan jp ON h.id_jenis_permohonan = jp.id
+    LEFT JOIN v_mahasiswa vm ON h.id_mahasiswa = vm.user_id
+    LEFT JOIN v_dosen vd ON h.id_dosen = vd.user_id
+    ORDER BY h.created_at DESC;
+
+    """
+    )
+
+def downgrade():
+    pass

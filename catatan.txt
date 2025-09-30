@@ -1,0 +1,8 @@
+Catatan: Mengambil Foto Signature Dosen di Frontend
+
+1️⃣ Masalah utama:
+
+ttd_path di database hanya relative path (signatures/…jpg)
+
+Browser tidak bisa menampilkan file tanpa URL lengkap.
+

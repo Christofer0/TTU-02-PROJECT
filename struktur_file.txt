@@ -1,0 +1,91 @@
+mkdir -p controllers
+touch controllers/__init__.py \
+      controllers/auth_controller.py \
+      controllers/user_controller.py \
+      controllers/permohonan_controller.py \
+      controllers/fakultas_controller.py \
+      controllers/admin_controller.py
+
+# Services
+mkdir -p services
+touch services/__init__.py \
+      services/base_service.py \
+      services/auth_service.py \
+      services/user_service.py \
+      services/permohonan_service.py \
+      services/notification_service.py
+
+# Repositories
+mkdir -p repositories
+touch repositories/__init__.py \
+      repositories/base_repository.py \
+      repositories/user_repository.py \
+      repositories/mahasiswa_repository.py \
+      repositories/dosen_repository.py \
+      repositories/permohonan_repository.py \
+      repositories/fakultas_repository.py \
+      repositories/notification_repository.py
+
+# Models
+mkdir -p models
+touch models/__init__.py \
+      models/base_model.py \
+      models/user_model.py \
+      models/fakultas_model.py \
+      models/mahasiswa_model.py \
+      models/dosen_model.py \
+      models/permohonan_model.py \
+      models/history_model.py \
+      models/notification_model.py
+
+# Schemas
+mkdir -p schemas
+touch schemas/__init__.py \
+      schemas/base_schema.py \
+      schemas/auth_schema.py \
+      schemas/user_schema.py \
+      schemas/mahasiswa_schema.py \
+      schemas/dosen_schema.py \
+      schemas/permohonan_schema.py \
+      schemas/fakultas_schema.py \
+      schemas/notification_schema.py \
+      schemas/response_schema.py
+
+# Utils
+mkdir -p utils
+touch utils/__init__.py \
+      utils/password_utils.py \
+      utils/jwt_utils.py \
+      utils/file_utils.py \
+      utils/qr_utils.py \
+      utils/response_utils.py \
+      utils/error_handlers.py \
+      utils/notification_utils.py
+
+# Migrations
+mkdir -p migrations/versions
+touch migrations/alembic.ini \
+      migrations/env.py \
+      migrations/script.py.mako
+
+# Uploads
+mkdir -p uploads/permohonan uploads/signatures uploads/qr_codes
+
+# Tests
+mkdir -p tests
+touch tests/__init__.py \
+      tests/conftest.py \
+      tests/test_auth.py \
+      tests/test_user.py \
+      tests/test_permohonan.py \
+      tests/test_utils.py
+
+# Scripts
+mkdir -p scripts
+touch scripts/create_sample_data.py \
+      scripts/db_commands.py \
+      scripts/deploy.sh
+
+# Docs
+mkdir -p docs
+touch docs/API.md docs/SETUP.md docs/DEPLOYMENT.md
