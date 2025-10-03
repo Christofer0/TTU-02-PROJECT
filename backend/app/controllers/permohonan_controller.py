@@ -189,7 +189,7 @@ def sign_permohonan(current_user, permohonan_id):
     try:
         # Check if dosen has uploaded signature
         if not current_user.ttd_path:
-            print(current_user.ttd_path)
+            print(current_user.ttd_path,'ttd_path')
             return error_response("Please upload your signature first", status_code=400)
         
         permohonan, error = permohonan_service.sign_permohonan(permohonan_id, current_user.id)

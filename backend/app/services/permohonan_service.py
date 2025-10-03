@@ -113,52 +113,8 @@ class PermohonanService(BaseService):
         except Exception as e:
             db.session.rollback()
             return None, str(e)
-    
-    # def sign_permohonan(self, permohonan_id: int, dosen_id: str):
-    #     """Sign approved permohonan"""
-    #     try:
-    #         permohonan = self.permohonan_repo.get_by_id(permohonan_id)
-    #         if not permohonan:
-    #             return None, "Permohonan not found"
-            
-    #         if permohonan.id_dosen != dosen_id:
-    #             return None, "Unauthorized to sign this permohonan"
-            
-    #         if permohonan.status_permohonan != 'disetujui':
-    #             return None, "Permohonan must be approved before signing"
-            
-    #         # Generate QR code for document verification
-    #         qr_data = {
-    #             'permohonan_id': permohonan.id,
-    #             'signed_by': dosen_id,
-    #             'signed_at': datetime.utcnow().isoformat()
-    #         }
-            
-    #         qr_filename, qr_data_string, qr_error = generate_qr_code(qr_data, permohonan.id)
-    #         if qr_error:
-    #             return None, f"Failed to generate QR code: {qr_error}"
-            
-    #         # Update permohonan
-    #         permohonan.status_permohonan = 'ditandatangani'
-    #         permohonan.signed_at = datetime.utcnow()
-    #         permohonan.qr_code_path = qr_filename
-    #         permohonan.qr_code_data = qr_data_string
-            
-    #         # Create history record
-    #         self._create_history_record(permohonan, 'signed')
-            
-    #         db.session.commit()
-            
-    #         # Send notification to mahasiswa
-    #         notify_permohonan_signed(permohonan)
-            
-    #         return permohonan, None
-            
-    #     except Exception as e:
-    #         db.session.rollback()
-    #         return None, str(e)
 
-    def sign_permohonan(self, permohonan_id: int, dosen_id: str):
+    def sign_permohonan(self, permohonan_id: str, dosen_id: str):
         """Sign permohonan (can sign pending or approved)"""
         try:
             permohonan = self.permohonan_repo.get_by_id(permohonan_id)
@@ -175,28 +131,39 @@ class PermohonanService(BaseService):
             if not permohonan.file_path:
                 return None, "No file attached to this permohonan"
             
-            # Generate QR code
+            # Get mahasiswa data
+            from app.models.mahasiswa_model import Mahasiswa
+            mahasiswa = db.session.query(Mahasiswa).filter_by(user_id=permohonan.id_mahasiswa).first()
+            if not mahasiswa:
+                return None, "Mahasiswa data not found"
+            
+            # Get dosen data
+            from app.models.dosen_model import Dosen
+            dosen = db.session.query(Dosen).filter_by(user_id=dosen_id).first()
+            if not dosen or not dosen.ttd_path:
+                return None, "Dosen signature not found"
+            
+            # Generate QR code with enhanced data
             qr_data = {
-                'permohonan_id': permohonan.id,
+                'permohonan_id': str(permohonan.id),
                 'signed_by': dosen_id,
-                'signed_at': datetime.utcnow().isoformat()
+                'signed_at': datetime.utcnow().isoformat(),
+                'request_by': {
+                    'nama': mahasiswa.user.nama if mahasiswa.user else 'Unknown',
+                    'nomor_induk': mahasiswa.user.nomor_induk
+                }
             }
             
             qr_filename, qr_data_string, qr_error = generate_qr_code(qr_data, permohonan.id)
             if qr_error:
                 return None, f"Failed to generate QR code: {qr_error}"
             
-            # Get dosen signature
-            from app.models.dosen_model import Dosen
-            dosen = db.session.query(Dosen).filter_by(user_id=dosen_id).first()
-            if not dosen or not dosen.ttd_path:
-                return None, "Dosen signature not found"
-            
-            # ADD SIGNATURE TO PDF - INI YANG BARU
+            # ADD SIGNATURE TO PDF
             signed_pdf_error = self._add_signature_to_permohonan_pdf(
                 permohonan, 
                 dosen.ttd_path, 
-                qr_filename
+                qr_filename,
+                dosen_id
             )
             if signed_pdf_error:
                 return None, signed_pdf_error
@@ -221,7 +188,7 @@ class PermohonanService(BaseService):
             db.session.rollback()
             return None, str(e)
         
-    def _add_signature_to_permohonan_pdf(self, permohonan, ttd_path, qr_filename):
+    def _add_signature_to_permohonan_pdf(self, permohonan, ttd_path, qr_filename,dosen_id:str):
         """Menambahkan tanda tangan ke PDF permohonan"""
         try:
             from utils.pdf_utils import add_signature_to_pdf, get_full_file_path
@@ -247,13 +214,18 @@ class PermohonanService(BaseService):
             # Path relatif untuk database
             relative_ttd_folder = os.path.relpath(ttd_folder, current_app.config['UPLOAD_SIGNED'])
             signed_relative_path = os.path.join(relative_ttd_folder, signed_filename)
+
+            from app.models.dosen_model import Dosen
+            dosen = db.session.query(Dosen).filter_by(user_id=dosen_id).first()
+            print(dosen.nama_lengkap,'nama lengkap DOSEN')
             
             # Proses PDF
             success, error = add_signature_to_pdf(
                 original_pdf_path,
                 signature_path, 
                 qr_path,
-                signed_absolute_path
+                signed_absolute_path,
+                dosen.nama_lengkap
             )
             
             if not success:

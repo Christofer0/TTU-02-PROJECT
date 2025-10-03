@@ -7,7 +7,7 @@ from reportlab.lib.pagesizes import letter
 from io import BytesIO
 from flask import current_app
 
-def add_signature_to_pdf(pdf_path, signature_path, qr_path, output_path):
+def add_signature_to_pdf(pdf_path, signature_path, qr_path, output_path,dosen_nama):
     """
     Menambahkan tanda tangan dan QR code ke PDF
     
@@ -77,7 +77,7 @@ def add_signature_to_pdf(pdf_path, signature_path, qr_path, output_path):
         
         # Tambahkan text
         overlay_canvas.setFont("Helvetica", 8)
-        overlay_canvas.drawString(signature_x, signature_y - 15, "Tanda Tangan Digital")
+        overlay_canvas.drawString(signature_x, signature_y - 15, f"{dosen_nama}")
         overlay_canvas.drawString(qr_x, qr_y - 15, "QR Verifikasi")
         
         overlay_canvas.save()

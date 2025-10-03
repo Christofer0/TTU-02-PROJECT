@@ -33,6 +33,9 @@ def create_app(config_name=None):
     #get list file
     from app.controllers.file_controller import file_bp
 
+    #after scan
+    from app.controllers.verify_controller import verify_bp
+
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(user_bp, url_prefix='/api/users')
 
@@ -42,7 +45,6 @@ def create_app(config_name=None):
     # get dosen untuk permohonan
     app.register_blueprint(dosen_bp,url_prefix='/api/dosen')
 
-
     # get program studi in fakultas
     app.register_blueprint(fakultas_bp,url_prefix='/api/fakultas')
 
@@ -51,6 +53,9 @@ def create_app(config_name=None):
 
     # get file to dosen
     app.register_blueprint(file_bp, url_prefix='/api/files')
+
+    # get data to qr 
+    app.register_blueprint(verify_bp, url_prefix='/api/verify')
 
 
 
@@ -64,4 +69,5 @@ def create_app(config_name=None):
 if __name__ == '__main__':
     app = create_app()
     app.run(debug=True, host='0.0.0.0', port=4000)
+
 

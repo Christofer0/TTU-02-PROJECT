@@ -3,6 +3,7 @@ import { mahasiswa_routes } from "./mahasiswa_routes";
 import { permohonan_routes } from "./permohonan_routes";
 import { dosen_routes } from "./dosen_routes";
 import { useAuthStore } from "@/stores/auth";
+import VerifyValid from "@/views/verify/VerifyValid.vue";
 const routes = [
   {
     path: "/",
@@ -12,6 +13,12 @@ const routes = [
   {
     path: "/register",
     component: () => import("@/views/auth/RegisterView.vue"),
+  },
+  {
+    path: "/verify-document/:id",
+    name: "verifyDocument",
+    component: VerifyValid,
+    meta: { requiresAuth: false, layout: "none" },
   },
   {
     path: "/mahasiswa",
