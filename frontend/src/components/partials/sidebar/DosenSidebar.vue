@@ -1,10 +1,11 @@
 <!-- Sidebar Dosen - Simple Version -->
 <template>
   <div
-    class="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-white/95 backdrop-blur-sm border-r border-gray-100 flex flex-col justify-between z-40"
+    class="bg-white/95 backdrop-blur-sm border-r border-gray-100 flex flex-col justify-between"
+    style="/* Kelas posisi sudah diatur di MahasiswaLayouts.vue */"
   >
     <!-- Navigasi Utama -->
-    <div class="mt-6 px-6 space-y-2">
+    <div class="mt-6 px-6 space-y-2 **overflow-y-auto**">
       <RouterLink
         to="/dosen/dashboard"
         class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-all duration-200"
@@ -114,13 +115,13 @@
     </div>
 
     <!-- Logout button -->
-    <div class="px-6 pb-8">
+    <div class="px-6 py-6 border-t border-gray-100 mt-95">
       <button
         @click="handleLogout"
-        class="group w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-gradient-to-r from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 text-red-600 hover:text-red-700 transition-all duration-200 shadow-sm"
+        class="group w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-gradient-to-r from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 text-red-600 hover:text-red-700 transition-all duration-200 hover:scale-[1.02] shadow-sm hover:shadow-md"
       >
         <div
-          class="w-8 h-8 bg-gradient-to-br from-red-400 to-red-500 rounded-lg flex items-center justify-center shadow-sm"
+          class="w-8 h-8 bg-gradient-to-br from-red-400 to-red-500 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow"
         >
           <svg
             class="w-4 h-4 text-white"

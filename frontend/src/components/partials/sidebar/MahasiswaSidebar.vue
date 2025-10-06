@@ -1,10 +1,9 @@
-<!-- Sidebar - Softer Design -->
 <template>
   <div
-    class="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-white/95 backdrop-blur-sm border-r border-gray-100 flex flex-col justify-between z-40"
+    class="bg-white/95 backdrop-blur-sm border-r border-gray-100 flex flex-col justify-between"
+    style="/* Kelas posisi sudah diatur di MahasiswaLayouts.vue */"
   >
-    <!-- Navigasi Utama dengan design yang lebih soft -->
-    <div class="mt-6 px-6 space-y-2">
+    <div class="mt-6 px-6 space-y-2 **overflow-y-auto**">
       <RouterLink
         to="/mahasiswa/dashboard"
         class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-all duration-200 hover:scale-[1.02]"
@@ -85,10 +84,11 @@
           >Ganti Password</span
         >
       </RouterLink>
+
+      <div class="h-4"></div>
     </div>
 
-    <!-- Logout button dengan design yang lebih soft -->
-    <div class="px-6 pb-8">
+    <div class="px-6 py-6 border-t border-gray-100 mt-95">
       <button
         @click="handleLogout"
         class="group w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-gradient-to-r from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 text-red-600 hover:text-red-700 transition-all duration-200 hover:scale-[1.02] shadow-sm hover:shadow-md"
@@ -125,6 +125,6 @@ const router = useRouter();
 
 function handleLogout() {
   auth.logout();
-  router.push({ name: "Login" }); // redirect setelah logout
+  router.push({ name: "Login" });
 }
 </script>

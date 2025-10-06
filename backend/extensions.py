@@ -20,7 +20,7 @@ def init_extensions(app):
     ma.init_app(app)
     cors.init_app(
         app,
-        resources={r"/api/*": {"origins": ["http://localhost:5173"]}},
+        resources={r"/api/*": {"origins": ["http://localhost:5173","http://192.168.68.62:5173"]}},
         supports_credentials=True,
         allow_headers=["Content-Type", "Authorization"],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
