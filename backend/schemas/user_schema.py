@@ -19,7 +19,7 @@ class UserSchema(SQLAlchemyAutoSchema, BaseSchema):
 class CreateUserSchema(Schema):
     """Schema for creating user"""
     nomor_induk = fields.Str(required=True, validate=validate.Length(min=3, max=20))
-    password = fields.Str(required=True, validate=validate.Length(min=6))
+    password = fields.Str(validate=validate.Length(min=6), allow_none=True)
     nama = fields.Str(required=True, validate=validate.Length(min=2, max=150))
     email = fields.Email(required=True)
     role = fields.Str(required=True, validate=validate.OneOf(['admin', 'dosen', 'mahasiswa']))

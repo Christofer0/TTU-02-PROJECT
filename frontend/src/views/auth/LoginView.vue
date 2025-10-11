@@ -1,32 +1,23 @@
+<!-- GoogleLoginFlow.vue -->
 <template>
   <div
-    class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 p-4"
+    class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4"
   >
-    <!-- Background Pattern -->
-    <div class="absolute inset-0 opacity-5">
-      <div
-        class="absolute top-20 left-20 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse"
-      ></div>
-      <div
-        class="absolute bottom-20 right-20 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-1000"
-      ></div>
-    </div>
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+      <!-- Login Step -->
+      <div v-if="step === 'login'" class="space-y-6">
+        <div class="text-center">
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">Selamat Datang</h1>
+          <p class="text-gray-600">Masuk dengan akun UKSW Anda</p>
+        </div>
 
-    <Card
-      class="w-[420px] shadow-2xl shadow-blue-100 border-0 bg-white/80 backdrop-blur-sm relative overflow-hidden"
-    >
-      <!-- Card decoration -->
-      <div
-        class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700"
-      ></div>
-
-      <CardHeader class="text-center pb-2 pt-8">
-        <!-- Logo/Icon -->
+        <!-- Error Alert -->
         <div
-          class="mx-auto mb-4 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200"
+          v-if="error"
+          class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3"
         >
           <svg
-            class="w-8 h-8 text-white"
+            class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -35,156 +26,206 @@
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <p class="text-sm text-red-800">{{ error }}</p>
+        </div>
+
+        <!-- Google Sign-In Button -->
+        <div class="flex justify-center">
+          <div id="googleSignInButton"></div>
+        </div>
+
+        <!-- Loading -->
+        <div v-if="loading" class="flex justify-center">
+          <svg
+            class="w-6 h-6 animate-spin text-blue-600"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
           </svg>
         </div>
 
-        <CardTitle class="text-2xl font-bold text-gray-800 mb-2"
-          >Selamat Datang</CardTitle
-        >
-        <CardDescription class="text-gray-600">
-          Masuk ke akun FTI UKSW Anda untuk melanjutkan
-        </CardDescription>
-      </CardHeader>
+        <div class="text-center text-sm text-gray-500">
+          <p>Gunakan email @uksw.edu atau @student.uksw.edu</p>
+        </div>
+      </div>
 
-      <CardContent class="px-8 pb-8">
-        <form @submit.prevent="handleLogin" class="space-y-6">
-          <!-- Nomor Induk Field -->
-          <div class="space-y-2">
-            <Label
-              for="nomorInduk"
-              class="text-sm font-semibold text-gray-700 flex items-center gap-2"
-            >
-              <svg
-                class="w-4 h-4 text-blue-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"
-                ></path>
-              </svg>
-              Nomor Induk
-            </Label>
-            <Input
-              id="nomorInduk"
-              v-model="nomorInduk"
-              placeholder="Masukkan nomor induk Anda"
-              class="h-12 rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:ring-blue-100 bg-white/70 backdrop-blur-sm transition-all duration-200 placeholder:text-gray-400"
+      <!-- Complete Profile Step - Mahasiswa -->
+      <div
+        v-else-if="
+          step === 'complete-profile' &&
+          profileData &&
+          profileData.role === 'mahasiswa'
+        "
+        class="space-y-6"
+      >
+        <div class="text-center">
+          <div
+            class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <img
+              :src="profileData.picture"
+              :alt="profileData.nama"
+              class="w-20 h-20 rounded-full"
+            />
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-1">
+            Lengkapi Profil Anda
+          </h2>
+          <p class="text-gray-600 text-sm">{{ profileData.nama }}</p>
+          <p class="text-gray-500 text-xs">{{ profileData.email }}</p>
+        </div>
+
+        <!-- Error Alert -->
+        <div
+          v-if="error"
+          class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3"
+        >
+          <svg
+            class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <p class="text-sm text-red-800">{{ error }}</p>
+        </div>
+
+        <!-- Form Mahasiswa -->
+        <form
+          @submit.prevent="handleCompleteProfileMahasiswa"
+          class="space-y-4"
+        >
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              NIM
+            </label>
+            <input
+              type="text"
+              :value="profileData.nomor_induk"
+              disabled
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
             />
           </div>
 
-          <!-- Password Field -->
-          <div class="space-y-2">
-            <Label
-              for="password"
-              class="text-sm font-semibold text-gray-700 flex items-center gap-2"
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Semester <span class="text-red-500">*</span>
+            </label>
+            <select
+              v-model="formData.semester"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
             >
-              <svg
-                class="w-4 h-4 text-blue-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                ></path>
-              </svg>
-              Password
-            </Label>
-            <div class="relative">
-              <Input
-                id="password"
-                :type="showPassword ? 'text' : 'password'"
-                v-model="password"
-                placeholder="Masukkan password Anda"
-                class="h-12 rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:ring-blue-100 bg-white/70 backdrop-blur-sm transition-all duration-200 placeholder:text-gray-400 pr-12"
-              />
-              <!-- Eye Icon Button -->
-              <button
-                type="button"
-                @click="togglePasswordVisibility"
-                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors duration-200 focus:outline-none focus:text-blue-600"
-              >
-                <svg
-                  v-if="!showPassword"
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  ></path>
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  ></path>
-                </svg>
-                <svg
-                  v-else
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                  ></path>
-                </svg>
-              </button>
-            </div>
+              <option v-for="sem in 14" :key="sem" :value="sem">
+                Semester {{ sem }}
+              </option>
+            </select>
           </div>
 
-          <!-- Login Button -->
-          <Button
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Nomor HP <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="formData.no_hp"
+              type="tel"
+              placeholder="081234567890"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <button
             type="submit"
-            class="w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-200 border-0 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-300"
-            :disabled="!nomorInduk || !password"
+            :disabled="loading"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition duration-200 flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            <span class="flex items-center justify-center gap-2">
-              <svg
-                class="w-5 h-5"
-                fill="none"
+            <svg
+              v-if="loading"
+              class="w-5 h-5 animate-spin"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
                 stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                ></path>
-              </svg>
-              Masuk ke Akun
-            </span>
-          </Button>
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            <span v-if="loading">Memproses...</span>
+            <span v-else>Simpan & Masuk</span>
+          </button>
         </form>
+      </div>
+
+      <!-- Complete Profile Step - Admin -->
+      <div
+        v-else-if="
+          step === 'complete-profile' &&
+          profileData &&
+          profileData.role === 'admin'
+        "
+        class="space-y-6"
+      >
+        <div class="text-center">
+          <div
+            class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <img
+              :src="profileData.picture"
+              :alt="profileData.nama"
+              class="w-20 h-20 rounded-full"
+            />
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-1">
+            Lengkapi Profil Admin
+          </h2>
+          <p class="text-gray-600 text-sm">{{ profileData.nama }}</p>
+          <p class="text-gray-500 text-xs">{{ profileData.email }}</p>
+          <span
+            class="inline-block px-3 py-1 text-xs font-semibold text-purple-700 bg-purple-100 rounded-full mt-2"
+          >
+            Administrator
+          </span>
+        </div>
 
         <!-- Error Alert -->
-        <Alert
-          v-if="errorMessage"
-          variant="destructive"
-          class="mt-6 border-red-200 bg-red-50 rounded-xl"
+        <div
+          v-if="error"
+          class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3"
         >
           <svg
-            class="w-4 h-4"
+            class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -193,93 +234,734 @@
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"
-            ></path>
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
-          {{ errorMessage }}
-        </Alert>
+          <p class="text-sm text-red-800">{{ error }}</p>
+        </div>
 
-        <!-- Register Link -->
-        <div class="mt-8 pt-6 border-t border-gray-100">
-          <p class="text-sm text-center text-gray-600">
-            Belum memiliki akun?
-            <RouterLink
-              to="/register"
-              class="text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-colors duration-200 ml-1"
+        <!-- Form Admin -->
+        <form @submit.prevent="handleCompleteProfileAdmin" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Nomor Induk <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="formDataAdmin.nomor_induk"
+              type="text"
+              placeholder="A001"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              required
+            />
+            <p class="mt-1 text-xs text-gray-500">Contoh: A001, ADM001, dll</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Nomor HP <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="formDataAdmin.no_hp"
+              type="tel"
+              placeholder="081234567890"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            :disabled="loading"
+            class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-lg transition duration-200 flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            <svg
+              v-if="loading"
+              class="w-5 h-5 animate-spin"
+              fill="none"
+              viewBox="0 0 24 24"
             >
-              Daftar sekarang
-            </RouterLink>
-          </p>
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            <span v-if="loading">Memproses...</span>
+            <span v-else>Simpan & Masuk</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Complete Profile Step - Dosen -->
+      <div
+        v-else-if="
+          step === 'complete-profile' &&
+          profileData &&
+          profileData.role === 'dosen'
+        "
+        class="space-y-6 max-h-[80vh] overflow-y-auto"
+      >
+        <div class="text-center sticky top-0 bg-white pb-4 z-10">
+          <div
+            class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <img
+              :src="profileData.picture"
+              :alt="profileData.nama"
+              class="w-20 h-20 rounded-full"
+            />
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-1">
+            Lengkapi Profil Dosen
+          </h2>
+          <p class="text-gray-600 text-sm">{{ profileData.nama }}</p>
+          <p class="text-gray-500 text-xs">{{ profileData.email }}</p>
+          <span
+            class="inline-block px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full mt-2"
+          >
+            Dosen
+          </span>
         </div>
 
-        <!-- Footer Info -->
-        <div class="mt-6 text-center">
-          <p class="text-xs text-gray-500">
-            Sistem Informasi Fakultas Teknologi Informasi
-          </p>
-          <p class="text-xs text-gray-400">Universitas Kristen Satya Wacana</p>
+        <!-- Error Alert -->
+        <div
+          v-if="error"
+          class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3"
+        >
+          <svg
+            class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <p class="text-sm text-red-800">{{ error }}</p>
         </div>
-      </CardContent>
-    </Card>
+
+        <!-- Form Dosen -->
+        <form @submit.prevent="handleCompleteProfileDosen" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              NIP/NIDN <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="formDataDosen.nomor_induk"
+              type="text"
+              placeholder="1234567890"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Nomor HP <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="formDataDosen.no_hp"
+              type="tel"
+              placeholder="081234567890"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Gelar Depan
+              </label>
+              <input
+                v-model="formDataDosen.gelar_depan"
+                type="text"
+                placeholder="Dr."
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Gelar Belakang
+              </label>
+              <input
+                v-model="formDataDosen.gelar_belakang"
+                type="text"
+                placeholder="M.Kom"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Jabatan
+            </label>
+            <input
+              v-model="formDataDosen.jabatan"
+              type="text"
+              placeholder="Lektor"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Fakultas <span class="text-red-500">*</span>
+            </label>
+            <select
+              v-model="formDataDosen.fakultas_id"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              required
+            >
+              <option value="" disabled>Pilih Fakultas</option>
+              <option :value="1">Fakultas Teknologi Informasi</option>
+              <!-- Add more fakultas as needed -->
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Tanda Tangan <span class="text-gray-500 text-xs">(Optional)</span>
+            </label>
+
+            <!-- File Upload Area -->
+            <div
+              @click="triggerFileInput"
+              @dragover.prevent="onDragOver"
+              @dragleave.prevent="onDragLeave"
+              @drop.prevent="onDrop"
+              :class="[
+                'border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors',
+                isDragging
+                  ? 'border-green-500 bg-green-50'
+                  : 'border-gray-300 hover:border-green-400',
+              ]"
+            >
+              <input
+                ref="fileInput"
+                type="file"
+                accept="image/png,image/jpeg,image/jpg,image/gif"
+                @change="onFileSelect"
+                class="hidden"
+              />
+
+              <!-- Preview if file selected -->
+              <div v-if="signaturePreview" class="space-y-2">
+                <img
+                  :src="signaturePreview"
+                  alt="Preview"
+                  class="mx-auto max-h-32 rounded border"
+                />
+                <p class="text-sm text-gray-600">{{ signatureFileName }}</p>
+                <button
+                  type="button"
+                  @click.stop="removeSignature"
+                  class="text-xs text-red-600 hover:text-red-700"
+                >
+                  Hapus
+                </button>
+              </div>
+
+              <!-- Upload prompt -->
+              <div v-else class="space-y-2">
+                <svg
+                  class="mx-auto h-12 w-12 text-gray-400"
+                  stroke="currentColor"
+                  fill="none"
+                  viewBox="0 0 48 48"
+                >
+                  <path
+                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <div class="text-sm text-gray-600">
+                  <span class="text-green-600 font-medium"
+                    >Klik untuk upload</span
+                  >
+                  atau drag & drop
+                </div>
+                <p class="text-xs text-gray-500">
+                  PNG, JPG, GIF (akan diresize otomatis ke 724x344px)
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            :disabled="loading"
+            class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-lg transition duration-200 flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            <svg
+              v-if="loading"
+              class="w-5 h-5 animate-spin"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            <span v-if="loading">Memproses...</span>
+            <span v-else>Simpan & Masuk</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Success Step -->
+      <div v-else-if="step === 'success'" class="text-center space-y-4 py-8">
+        <div
+          class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto"
+        >
+          <svg
+            class="w-12 h-12 text-green-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900">Berhasil!</h2>
+        <p class="text-gray-600">Anda akan dialihkan ke dashboard...</p>
+        <svg
+          class="w-6 h-6 animate-spin text-blue-600 mx-auto"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { RouterLink, useRouter } from "vue-router";
-import { login } from "@/services/login";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Alert } from "@/components/ui/alert";
+import { apiClient } from "@/lib/axios";
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 
-const auth = useAuthStore();
+// =========================
+// Types
+// =========================
+interface ProfileData {
+  needs_profile: boolean;
+  role: string;
+  nomor_induk: string;
+  program_studi_id: number;
+  email: string;
+  nama: string;
+  picture?: string;
+  token?: string;
+}
+
+interface FormData {
+  semester: number;
+  no_hp: string;
+}
+
+interface GoogleCallbackResponse {
+  credential?: string;
+}
+
+// =========================
+// Router & Store
+// =========================
 const router = useRouter();
-const nomorInduk = ref("");
-const password = ref("");
-const errorMessage = ref("");
-const showPassword = ref(false);
+const authStore = useAuthStore();
 
-// Toggle password visibility
-function togglePasswordVisibility() {
-  showPassword.value = !showPassword.value;
-}
+// =========================
+// State
+// =========================
+const step = ref<"login" | "complete-profile" | "success">("login");
+const loading = ref(false);
+const error = ref("");
+const profileData = ref<ProfileData | null>(null);
+const formData = ref<FormData>({
+  semester: 1,
+  no_hp: "",
+});
+const formDataAdmin = ref({
+  nomor_induk: "",
+  no_hp: "",
+});
+const formDataDosen = ref({
+  nomor_induk: "",
+  no_hp: "",
+  gelar_depan: "",
+  gelar_belakang: "",
+  jabatan: "",
+  fakultas_id: 1,
+});
+const signatureFile = ref<File | null>(null);
+const signaturePreview = ref<string>("");
+const signatureFileName = ref<string>("");
+const isDragging = ref(false);
+const fileInput = ref<HTMLInputElement | null>(null);
 
-async function handleLogin() {
+// =========================
+// Config
+// =========================
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+// =========================
+// Initialize Google Sign-In
+// =========================
+onMounted(() => {
+  const script = document.createElement("script");
+  script.src = "https://accounts.google.com/gsi/client";
+  script.async = true;
+  script.defer = true;
+  document.body.appendChild(script);
+
+  script.onload = () => {
+    if (window.google) {
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleCallback,
+      });
+
+      window.google.accounts.id.renderButton(
+        document.getElementById("googleSignInButton")!,
+        {
+          theme: "outline",
+          size: "large",
+          text: "signin_with",
+          width: "350",
+        }
+      );
+    }
+  };
+});
+
+// =========================
+// Handle Google callback
+// =========================
+const handleGoogleCallback = async (response: GoogleCallbackResponse) => {
+  loading.value = true;
+  error.value = "";
+
   try {
-    const result = await login(nomorInduk.value, password.value);
+    const res = await apiClient.post(`/auth/google/login`, {
+      token: response.credential,
+    });
 
-    auth.setUser(result.user);
-    auth.setAccessToken(result.access_token);
-    auth.setRefreshToken(result.refresh_token);
+    const data = res.data;
+    console.log(data, "resData");
+    console.log(res.status, "status code");
 
-    // Set dosen-specific data jika ada
-    if (result.dosen) {
-      auth.setDosen(result.dosen);
+    // === CASE 1: Need to complete profile (206 or 207) ===
+    if (res.status === 206 || res.status === 207) {
+      profileData.value = {
+        ...data.data,
+        token: response.credential,
+      };
+      step.value = "complete-profile";
     }
+    // === CASE 2: Login success ===
+    else if (res.status === 200 && data.success) {
+      // Simpan token dan user
+      localStorage.setItem("access_token", data.data.access_token);
+      localStorage.setItem("refresh_token", data.data.refresh_token);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
 
-    // Gunakan auth.user.value untuk pengecekan role
-    if (auth?.user?.role === "mahasiswa") {
-      router.push("/mahasiswa/dashboard");
-      return;
-    } else if (auth?.user?.role === "dosen") {
-      router.push("/dosen/dashboard");
-      return;
-    } else if (auth?.user?.role === "admin") {
-      router.push("/admin/dashboard");
-      return;
+      // Simpan ke Pinia store
+      authStore.setAccessToken(data.data.access_token);
+      authStore.setRefreshToken(data.data.refresh_token);
+      authStore.setUser(data.data.user);
+
+      // jika dosen
+      if (data.data.user.role === "dosen" && data.data.dosen) {
+        authStore.setDosen(data.data.dosen);
+      }
+      // else if(data.data.user.role === "mahasiswa" && data.data.mahasiswa){
+      //   authStore.setMahasiswa(data.data.mahasiswa);
+      // }
+      step.value = "success";
+
+      // Redirect berdasarkan role
+      const role = data.data.user.role;
+      const routes: Record<string, string> = {
+        admin: "/admin/dashboard",
+        dosen: "/dosen/dashboard",
+        mahasiswa: "/mahasiswa/dashboard",
+      };
+
+      setTimeout(() => {
+        router.push(routes[role] || "/dashboard");
+      }, 1500);
     }
-  } catch (error: any) {
-    errorMessage.value =
-      error.response?.data?.message || "Login gagal, silakan coba lagi.";
+    // === CASE 3: Error ===
+    else {
+      error.value = data.message || "Login gagal";
+    }
+  } catch (err: any) {
+    // Handle axios error for status 206/207
+    if (
+      err.response &&
+      (err.response.status === 206 || err.response.status === 207)
+    ) {
+      const data = err.response.data;
+      profileData.value = {
+        ...data.data,
+        token: response.credential,
+      };
+      step.value = "complete-profile";
+    } else {
+      error.value =
+        err.response?.data?.message || "Terjadi kesalahan. Silakan coba lagi.";
+    }
+    console.error(err);
+  } finally {
+    loading.value = false;
   }
-}
+};
+
+// =========================
+// Handle complete profile (Mahasiswa)
+// =========================
+const handleCompleteProfileMahasiswa = async () => {
+  loading.value = true;
+  error.value = "";
+
+  try {
+    const res = await apiClient.post(
+      `/auth/google/complete-profile/mahasiswa`,
+      {
+        token: profileData.value?.token,
+        semester: parseInt(formData.value.semester.toString()),
+        no_hp: formData.value.no_hp,
+      }
+    );
+
+    const data = res.data;
+
+    if (data.success) {
+      localStorage.setItem("access_token", data.data.access_token);
+      localStorage.setItem("refresh_token", data.data.refresh_token);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
+
+      authStore.setAccessToken(data.data.access_token);
+      authStore.setRefreshToken(data.data.refresh_token);
+      authStore.setUser(data.data.user);
+      step.value = "success";
+
+      setTimeout(() => {
+        router.push("/mahasiswa/dashboard");
+      }, 1500);
+    } else {
+      error.value = data.message || "Gagal menyimpan profil.";
+    }
+  } catch (err: any) {
+    error.value =
+      err.response?.data?.message || "Terjadi kesalahan saat menyimpan profil.";
+    console.error(err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// =========================
+// Handle complete profile (Admin)
+// =========================
+const handleCompleteProfileAdmin = async () => {
+  loading.value = true;
+  error.value = "";
+
+  try {
+    const res = await apiClient.post(`/auth/google/complete-profile/admin`, {
+      token: profileData.value?.token,
+      nomor_induk: formDataAdmin.value.nomor_induk,
+      no_hp: formDataAdmin.value.no_hp,
+    });
+
+    const data = res.data;
+
+    if (data.success) {
+      localStorage.setItem("access_token", data.data.access_token);
+      localStorage.setItem("refresh_token", data.data.refresh_token);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
+
+      authStore.setAccessToken(data.data.access_token);
+      authStore.setRefreshToken(data.data.refresh_token);
+      authStore.setUser(data.data.user);
+
+      step.value = "success";
+      setTimeout(() => {
+        router.push("/admin/dashboard");
+      }, 1500);
+    } else {
+      error.value = data.message || "Gagal menyimpan profil admin.";
+    }
+  } catch (err: any) {
+    error.value =
+      err.response?.data?.message ||
+      "Terjadi kesalahan saat menyimpan profil admin.";
+    console.error(err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// =========================
+// Handle complete profile (Dosen)
+// =========================
+const handleCompleteProfileDosen = async () => {
+  loading.value = true;
+  error.value = "";
+
+  try {
+    const formDataToSend = new FormData();
+    formDataToSend.append("token", profileData.value?.token || "");
+    formDataToSend.append("nomor_induk", formDataDosen.value.nomor_induk);
+    formDataToSend.append("no_hp", formDataDosen.value.no_hp);
+    formDataToSend.append("gelar_depan", formDataDosen.value.gelar_depan || "");
+    formDataToSend.append(
+      "gelar_belakang",
+      formDataDosen.value.gelar_belakang || ""
+    );
+    formDataToSend.append("jabatan", formDataDosen.value.jabatan || "");
+    formDataToSend.append(
+      "fakultas_id",
+      formDataDosen.value.fakultas_id.toString()
+    );
+
+    if (signatureFile.value) {
+      formDataToSend.append("tanda_tangan", signatureFile.value);
+    }
+
+    const res = await apiClient.post(
+      `/auth/google/complete-profile/dosen`,
+      formDataToSend,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    const data = res.data;
+
+    if (data.success) {
+      localStorage.setItem("access_token", data.data.access_token);
+      localStorage.setItem("refresh_token", data.data.refresh_token);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
+
+      authStore.setAccessToken(data.data.access_token);
+      authStore.setRefreshToken(data.data.refresh_token);
+      authStore.setUser(data.data.user);
+      authStore.setDosen(data.data.dosen);
+
+      step.value = "success";
+      setTimeout(() => {
+        router.push("/dosen/dashboard");
+      }, 1500);
+    } else {
+      error.value = data.message || "Gagal menyimpan profil dosen.";
+    }
+  } catch (err: any) {
+    error.value =
+      err.response?.data?.message ||
+      "Terjadi kesalahan saat menyimpan profil dosen.";
+    console.error(err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// =========================
+// File Upload Handlers (Dosen)
+// =========================
+const triggerFileInput = () => {
+  fileInput.value?.click();
+};
+
+const onFileSelect = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  if (!input.files?.length) return;
+
+  const file = input.files[0];
+  signatureFile.value = file;
+  signatureFileName.value = file.name;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    signaturePreview.value = e.target?.result as string;
+  };
+  reader.readAsDataURL(file);
+};
+
+const removeSignature = () => {
+  signatureFile.value = null;
+  signaturePreview.value = "";
+  signatureFileName.value = "";
+  if (fileInput.value) fileInput.value.value = "";
+};
+
+const onDragOver = () => {
+  isDragging.value = true;
+};
+const onDragLeave = () => {
+  isDragging.value = false;
+};
+const onDrop = (event: DragEvent) => {
+  isDragging.value = false;
+  const files = event.dataTransfer?.files;
+  if (!files?.length) return;
+
+  const file = files[0];
+  signatureFile.value = file;
+  signatureFileName.value = file.name;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    signaturePreview.value = e.target?.result as string;
+  };
+  reader.readAsDataURL(file);
+};
 </script>

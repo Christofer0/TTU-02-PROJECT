@@ -17,37 +17,6 @@ register_schema = RegisterSchema()
 token_response_schema = TokenResponseSchema()
 user_schema = UserSchema()
 
-# @auth_bp.route('/login', methods=['POST'])
-# def login():
-#     """User login endpoint"""
-#     try:
-#         # Validate request data
-#         login_data = login_schema.load(request.json)
-        
-#         # Authenticate user
-#         result, error = auth_service.login(
-#             login_data['nomor_induk'],
-#             login_data['password']
-#         )
-        
-#         if error:
-#             return error_response(error, status_code=401)
-        
-#         # Serialize response
-#         response_data = {
-#             'access_token': result['access_token'],
-#             'refresh_token': result['refresh_token'],
-#             'expires_in': 3600,  # 1 hour
-#             'user': user_schema.dump(result['user'])
-#         }
-        
-#         return success_response("Login successful", response_data)
-        
-#     except ValidationError as e:
-#         return error_response("Validation error", e.messages, 400)
-#     except Exception as e:
-#         return error_response("Login failed", str(e), 500)
-
 @auth_bp.route('/login', methods=['POST'])
 def login():
     """User login endpoint"""
@@ -91,6 +60,56 @@ def login():
         return error_response("Validation error", e.messages, 400)
     except Exception as e:
         return error_response("Login failed", str(e), 500)
+
+@auth_bp.route('/login/google', methods=['POST'])
+def login_with_google():
+    """User login with Google OAuth"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'token' not in data:
+            return error_response("Google token is required", status_code=400)
+        
+        google_token = data['token']
+        
+        # Authenticate with Google
+        result, error = auth_service.login_with_google(google_token)
+        
+        if error:
+            return error_response(error, status_code=401)
+        
+        if result.get('action') == 'complete_profile':
+            return success_response(
+                "Lengkapi profil terlebih dahulu",
+                result,
+                status_code=200
+            )
+        
+        user = result['user']
+        
+        # Ambil data dosen kalau role = dosen
+        dosen_data = None
+        if user.role == "dosen":
+            from app.models.dosen_model import Dosen
+            from schemas.dosen_schema import DosenSchema
+
+            dosen = Dosen.query.filter_by(user_id=user.id).first()
+            if dosen:
+                dosen_data = DosenSchema().dump(dosen)
+
+        # Serialize response
+        response_data = {
+            'access_token': result['access_token'],
+            'refresh_token': result['refresh_token'],
+            'expires_in': 3600,  # 1 hour
+            'user': user_schema.dump(user),
+            'dosen': dosen_data
+        }
+        
+        return success_response("Google login successful", response_data)
+        
+    except Exception as e:
+        return error_response("Google login failed", str(e), 500)
 
 
 @auth_bp.route('/register', methods=['POST'])

@@ -11,11 +11,20 @@ def upgrade():
         NOW(), NOW())
     """)
 
+    # Tambahkan jenis permohonan dengan route_path
     op.execute("""
         INSERT INTO jenis_permohonan 
-        (id, nama_jenis_permohonan, deskripsi, is_active, created_at, updated_at) 
+        (id, nama_jenis_permohonan, deskripsi, route_path, is_active, created_at, updated_at) 
         VALUES
-        (1, 'Surat Permohonan TTD', 'Permohonan TTD untuk perizinan mahasiswa mengambil TTU1, TTU2, KP', True, NOW(), NOW());
+        (
+            1,
+            'Surat Permohonan TTD',
+            'Permohonan TTD untuk perizinan mahasiswa mengambil TTU1, TTU2, KP',
+            '/PermohonanTTD',
+            True,
+            NOW(),
+            NOW()
+        );
     """)
 
 def downgrade():

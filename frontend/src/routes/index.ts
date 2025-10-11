@@ -4,11 +4,12 @@ import { permohonan_routes } from "./permohonan_routes";
 import { dosen_routes } from "./dosen_routes";
 import { useAuthStore } from "@/stores/auth";
 import VerifyValid from "@/views/verify/VerifyValid.vue";
+import GoogleLoginFlow from "@/views/auth/LoginView.vue";
 const routes = [
   {
     path: "/",
     name: "Login",
-    component: () => import("@/views/auth/LoginView.vue"),
+    component: GoogleLoginFlow,
   },
   {
     path: "/register",

@@ -60,6 +60,7 @@
     >
       <CardContent class="flex flex-col items-center text-center p-8">
         <!-- Preview TTD -->
+
         <div v-if="dosen?.ttd_path">
           <img
             :src="`${baseUrl}/files/uploads/${dosen.ttd_path}`"

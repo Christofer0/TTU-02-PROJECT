@@ -247,9 +247,6 @@
                       </div>
                       <div class="text-left">
                         <p class="font-medium">{{ dosen.nama }}</p>
-                        <p class="text-xs text-gray-500">
-                          {{ dosen.nip || "NIP: -" }}
-                        </p>
                       </div>
                     </div>
                   </SelectItem>
@@ -657,7 +654,7 @@ const getInitials = (name: string) => {
 const fetchDosen = async () => {
   try {
     dosenList.value = await getAllDosen();
-  } catch (error) {
+  } catch (error: Error | any) {
     console.error("Gagal fetch data dosen:", error);
     error.value = "Gagal memuat data dosen. Silakan refresh halaman.";
   }

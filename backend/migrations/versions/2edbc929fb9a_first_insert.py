@@ -1,8 +1,8 @@
-"""Initial migration
+"""first insert
 
-Revision ID: 216d27ee8200
+Revision ID: 2edbc929fb9a
 Revises: 
-Create Date: 2025-09-20 02:05:32.191227
+Create Date: 2025-10-07 22:31:41.042564
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '216d27ee8200'
+revision = '2edbc929fb9a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -30,6 +30,7 @@ def upgrade():
     sa.Column('nama_jenis_permohonan', sa.String(length=255), nullable=False),
     sa.Column('deskripsi', sa.Text(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=True),
+    sa.Column('route_path', sa.String(length=255), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.PrimaryKeyConstraint('id')
@@ -37,7 +38,7 @@ def upgrade():
     op.create_table('users',
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('nomor_induk', sa.String(length=20), nullable=False),
-    sa.Column('password', sa.String(length=255), nullable=False),
+    sa.Column('password', sa.String(length=255), nullable=True),
     sa.Column('nama', sa.String(length=150), nullable=False),
     sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('role', sa.Enum('admin', 'dosen', 'mahasiswa', name='user_roles'), nullable=False),

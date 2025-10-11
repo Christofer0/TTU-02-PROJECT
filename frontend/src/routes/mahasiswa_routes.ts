@@ -18,6 +18,11 @@ const routes = [
     name: "MahasiswaChangePassword",
     component: () => import("@/views/auth/ChangePassword.vue"),
   },
+  {
+    path: "history",
+    name: "HistoryMahasiswa",
+    component: () => import("@/views/mahasiswa/HistoryMahasiswa.vue"),
+  },
 ];
 
 export const mahasiswa_routes = routes;

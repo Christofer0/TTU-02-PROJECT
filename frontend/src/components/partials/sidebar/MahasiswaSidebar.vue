@@ -58,7 +58,7 @@
         >
       </RouterLink>
 
-      <RouterLink
+      <!-- <RouterLink
         to="/mahasiswa/change-password"
         class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-all duration-200 hover:scale-[1.02]"
         active-class="bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 shadow-sm border-l-4 border-blue-500"
@@ -82,6 +82,33 @@
         </div>
         <span class="font-medium text-gray-700 group-hover:text-gray-900"
           >Ganti Password</span
+        >
+      </RouterLink> -->
+
+      <RouterLink
+        to="/mahasiswa/history"
+        class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-all duration-200 hover:scale-[1.02]"
+        active-class="bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 shadow-sm border-l-4 border-blue-500"
+      >
+        <div
+          class="w-8 h-8 bg-gradient-to-br from-slate-400 to-slate-500 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow"
+        >
+          <svg
+            class="w-4 h-4 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+        <span class="font-medium text-gray-700 group-hover:text-gray-900"
+          >History</span
         >
       </RouterLink>
 

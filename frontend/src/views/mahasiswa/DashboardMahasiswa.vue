@@ -185,7 +185,7 @@
       </div>
 
       <!-- Menu Histori -->
-      <Card
+      <!-- <Card
         class="border-0 shadow-xl shadow-blue-100 bg-white/90 backdrop-blur-sm overflow-hidden"
       >
         <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6">
@@ -317,7 +317,7 @@
             </Button>
           </div>
         </CardContent>
-      </Card>
+      </Card> -->
 
       <!-- Menu Layanan Surat -->
       <Card

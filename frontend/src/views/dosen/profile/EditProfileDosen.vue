@@ -80,6 +80,7 @@
               type="text"
               placeholder="Masukkan nama lengkap"
               required
+              disabled="true"
               class="h-12 rounded-xl border-2 border-gray-200 focus:border-purple-400 focus:ring-purple-100 bg-white/70 backdrop-blur-sm transition-all duration-200 placeholder:text-gray-400"
               :class="{
                 'border-red-300 focus:border-red-400 focus:ring-red-100':
@@ -121,6 +122,7 @@
               type="email"
               placeholder="Masukkan email aktif"
               required
+              disabled="true"
               class="h-12 rounded-xl border-2 border-gray-200 focus:border-purple-400 focus:ring-purple-100 bg-white/70 backdrop-blur-sm transition-all duration-200 placeholder:text-gray-400"
               :class="{
                 'border-red-300 focus:border-red-400 focus:ring-red-100':

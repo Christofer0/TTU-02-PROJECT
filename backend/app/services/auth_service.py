@@ -1,4 +1,5 @@
 # services/auth_service.py
+from flask import current_app
 from datetime import datetime, timedelta
 from flask_jwt_extended import create_access_token, create_refresh_token
 from app.repositories.user_repository import UserRepository
@@ -9,6 +10,9 @@ from app.models.user_model import User
 from app.models.mahasiswa_model import Mahasiswa
 from app.models.dosen_model import Dosen
 from extensions import db
+
+import requests
+
 
 class AuthService:
     """Service for authentication operations"""
@@ -45,6 +49,97 @@ class AuthService:
             'refresh_token': refresh_token,
             'user': user
         }, None
+    
+    # login with google
+    def login_with_google(self, google_token:str) -> tuple:
+        """Authenticate user with Google OAuth"""
+        try:
+            google_user_info = self._verify_google_token(google_token)
+
+            if not google_user_info:
+                return None, "Invalid Google token"
+            
+            email = google_user_info.get('email')
+            google_name = google_user_info.get('name','')
+
+            if not self._is_email_allowed(email):
+                allowed_domains = ', '.join(current_app.config['ALLOWED_EMAIL_DOMAINS'])
+                return None, f"Email harus menggunakan domain institusi: {allowed_domains}"
+            
+            user = self.user_repo.get_by_email(email)
+
+            if not user:
+                # Deteksi role
+                nomor_induk = email.split('@')[0]
+                if self.user_repo.get_user_count() == 0:
+                    role = 'admin'
+                elif nomor_induk.isdigit() and len(nomor_induk) == 9:
+                    role = 'mahasiswa'
+                else :
+                    role ='dosen'
+                
+                return {
+                    'action':'complete_profile',
+                    'role':role,
+                    'email': email,
+                    'nama': google_name
+                }
+            
+            if not user.is_active:
+                return None, "Akun dinonaktifkan"
+            
+            self.user_repo.update_last_login(user.id)
+
+            access_token = create_access_token(identity=user.id)
+            refresh_token = create_refresh_token(identity=user.id)
+            return {
+                'access_token': access_token,
+                'refresh_token': refresh_token,
+                'user': user
+            }, None
+
+        
+        except Exception as e:
+            current_app.logger.error(f"Google login error: {str(e)}")
+            return None, "Google login failed"
+        
+    def _verify_google_token(self, token: str) -> dict:
+        """Verify Google OAuth token"""
+        try:
+            # Verify token with Google
+            response = requests.get(
+                'https://oauth2.googleapis.com/tokeninfo',
+                params={'id_token': token},
+                timeout=5
+            )
+            
+            if response.status_code != 200:
+                return None
+            
+            user_info = response.json()
+            
+            # Verify client ID
+            client_id = current_app.config.get('GOOGLE_CLIENT_ID')
+            if user_info.get('aud') != client_id:
+                current_app.logger.error("Invalid Google client ID")
+                return None
+            
+            return user_info
+            
+        except requests.exceptions.RequestException as e:
+            current_app.logger.error(f"Error verifying Google token: {str(e)}")
+            return None
+    
+    def _is_email_allowed(self, email: str) -> bool:
+        """Check if email domain is allowed"""
+        allowed_domains = current_app.config.get('ALLOWED_EMAIL_DOMAINS', [])
+        
+        if not allowed_domains or allowed_domains == ['']:
+            return True  # No restrictions
+        
+        email_domain = email.split('@')[-1].lower()
+        return email_domain in [domain.lower().strip() for domain in allowed_domains]
+            
     
     def register(self, user_data: dict) -> tuple:
         """Register new user with auto role assignment"""

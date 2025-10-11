@@ -21,3 +21,13 @@ class FakultasRepository(BaseRepository):
         return self.session.query(Fakultas)\
             .options(joinedload(Fakultas.program_studi))\
             .all()
+    
+class ProgramStudiRepository(BaseRepository):
+    """Repository for Program Studi operations"""
+    
+    def __init__(self):
+        super().__init__(ProgramStudi)
+    
+    def get_by_id(self, prodi_id: int) -> Optional[ProgramStudi]:
+        """Get program studi by ID"""
+        return self.session.query(ProgramStudi).filter(ProgramStudi.id == prodi_id).first()

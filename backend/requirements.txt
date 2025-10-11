@@ -16,3 +16,37 @@ python-decouple==3.8
 PyPDF2==3.0.1
 Pillow==10.0.1
 reportlab==4.0.4
+
+
+
+
+# Core Flask
+Flask==3.0.0
+flask-cors==4.0.0
+
+# Database
+flask-sqlalchemy==3.1.1
+psycopg2-binary==2.9.9
+alembic==1.13.0
+
+# Authentication & Security
+flask-jwt-extended==4.6.0
+werkzeug==3.0.1
+python-decouple==3.8
+
+# Google OAuth
+requests==2.31.0
+
+# Serialization
+marshmallow==3.20.1
+flask-marshmallow==0.15.0
+marshmallow-sqlalchemy==0.29.0
+
+# Other utilities (jika ada)
+# qrcode==7.4.2
+# pillow==10.1.0
+# python-dateutil==2.8.2
+
+google-auth==2.23.4
+google-auth-oauthlib==1.1.0
+google-auth-httplib2==0.1.1

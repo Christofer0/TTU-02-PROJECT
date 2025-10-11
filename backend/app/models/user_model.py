@@ -9,7 +9,7 @@ class User(BaseModel):
     
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     nomor_induk = db.Column(db.String(20), unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)
+    password = db.Column(db.String(255), nullable=True)
     nama = db.Column(db.String(150), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     role = db.Column(db.Enum('admin', 'dosen', 'mahasiswa', name='user_roles'), nullable=False)

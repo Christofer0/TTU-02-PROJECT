@@ -20,6 +20,15 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=int(config('JWT_ACCESS_TOKEN_EXPIRES', default=3600)))
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(seconds=int(config('JWT_REFRESH_TOKEN_EXPIRES', default=2592000)))
     JWT_ALGORITHM = 'HS256'
+
+    # Google OAuth config
+    GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
+    GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')
+    GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
+    
+    # Allowed email domains (untuk pengecekan email institusi)
+    # Sesuaikan dengan domain email kampus Anda
+    ALLOWED_EMAIL_DOMAINS = config('ALLOWED_EMAIL_DOMAINS', default='uksw.edu').split(',')
     
     # File upload config
     UPLOAD_FOLDER = config('UPLOAD_FOLDER', default='uploads')
@@ -29,6 +38,10 @@ class Config:
     MAX_CONTENT_LENGTH = int(config('MAX_CONTENT_LENGTH', default=16777216))  # 16MB
     ALLOWED_EXTENSIONS = set(config('ALLOWED_EXTENSIONS', default='pdf,doc,docx,jpg,jpeg,png').split(','))
     FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
+
+
+
+    
 
 class DevelopmentConfig(Config):
     DEBUG = True
