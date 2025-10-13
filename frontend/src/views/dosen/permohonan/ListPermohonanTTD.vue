@@ -110,13 +110,13 @@
                 ❌ Tolak
               </button>
 
-              <!-- Tombol Detail -->
+              <!-- Tombol Detail
               <button
                 class="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
                 @click="viewDetail(permohonan.id)"
               >
                 👁️ Detail
-              </button>
+              </button> -->
             </div>
           </td>
         </tr>

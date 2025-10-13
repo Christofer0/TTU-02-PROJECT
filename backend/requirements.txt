@@ -1,52 +1,91 @@
-Flask==2.3.3
-Flask-SQLAlchemy==3.0.5
-Flask-Migrate==4.0.5
-Flask-JWT-Extended==4.5.3
-Flask-CORS==4.0.0
-marshmallow==3.20.1
-flask-marshmallow==0.15.0
-marshmallow-sqlalchemy==0.29.0
-psycopg2-binary==2.9.7
-python-dotenv==1.0.0
-bcrypt==4.0.1
-qrcode[pil]==7.4.2
-Pillow==10.0.1
-Werkzeug==2.3.7
-python-decouple==3.8
-PyPDF2==3.0.1
-Pillow==10.0.1
-reportlab==4.0.4
+# Flask==2.3.3
+# Flask-SQLAlchemy==3.0.5
+# Flask-Migrate==4.0.5
+# Flask-JWT-Extended==4.5.3
+# Flask-CORS==4.0.0
+# marshmallow==3.20.1
+# flask-marshmallow==0.15.0
+# marshmallow-sqlalchemy==0.29.0
+# psycopg2-binary==2.9.7
+# python-dotenv==1.0.0
+# bcrypt==4.0.1
+# qrcode[pil]==7.4.2
+# Pillow==10.0.1
+# Werkzeug==2.3.7
+# python-decouple==3.8
+# PyPDF2==3.0.1
+# Pillow==10.0.1
+# reportlab==4.0.4
+
+# # Core Flask
+# Flask==3.0.0
+# flask-cors==4.0.0
+
+# # Database
+# flask-sqlalchemy==3.1.1
+# psycopg2-binary==2.9.9
+# alembic==1.13.0
+
+# # Authentication & Security
+# flask-jwt-extended==4.6.0
+# werkzeug==3.0.1
+# python-decouple==3.8
+
+# # Google OAuth
+# requests==2.31.0
+
+# # Serialization
+# marshmallow==3.20.1
+# flask-marshmallow==0.15.0
+# marshmallow-sqlalchemy==0.29.0
+
+# google-auth==2.23.4
+# google-auth-oauthlib==1.1.0
+# google-auth-httplib2==0.1.1
 
 
-
-
-# Core Flask
+# ======================
+# 🌐 Core Flask Framework
+# ======================
 Flask==3.0.0
 flask-cors==4.0.0
+Werkzeug==3.0.1
 
-# Database
+# ======================
+# 🗃️ Database & Migration
+# ======================
 flask-sqlalchemy==3.1.1
-psycopg2-binary==2.9.9
+flask-migrate==4.0.5
 alembic==1.13.0
+psycopg2-binary==2.9.9
 
-# Authentication & Security
+# ======================
+# 🔐 Authentication & Security
+# ======================
 flask-jwt-extended==4.6.0
-werkzeug==3.0.1
+bcrypt==4.1.2
 python-decouple==3.8
 
-# Google OAuth
+# ======================
+# 🔑 Google OAuth Support
+# ======================
 requests==2.31.0
-
-# Serialization
-marshmallow==3.20.1
-flask-marshmallow==0.15.0
-marshmallow-sqlalchemy==0.29.0
-
-# Other utilities (jika ada)
-# qrcode==7.4.2
-# pillow==10.1.0
-# python-dateutil==2.8.2
-
 google-auth==2.23.4
 google-auth-oauthlib==1.1.0
 google-auth-httplib2==0.1.1
+
+# ======================
+# 🧾 Serialization & Validation
+# ======================
+marshmallow==3.20.1
+flask-marshmallow==0.15.0
+marshmallow-sqlalchemy==0.29.0
+
+# ======================
+# 🧰 Utilities & Extra Features
+# ======================
+python-dotenv==1.0.1
+qrcode[pil]==7.4.2
+Pillow==10.0.1
+PyPDF2==3.0.1
+reportlab==4.0.4

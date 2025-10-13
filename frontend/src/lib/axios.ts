@@ -2,7 +2,7 @@ import axios, { type AxiosInstance } from "axios";
 import { useAuthStore } from "@/stores/auth";
 
 export const apiClient: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:4000/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://192.168.1.3:4000/api",
   timeout: 10000,
 
   validateStatus: function (status) {

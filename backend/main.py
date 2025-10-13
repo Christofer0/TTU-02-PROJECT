@@ -59,6 +59,9 @@ def create_app(config_name=None):
     # get data to qr 
     app.register_blueprint(verify_bp, url_prefix='/api/verify')
 
+    # magasiswa get history
+    from app.controllers.history_controller import history_bp
+    app.register_blueprint(history_bp, url_prefix='/api/history')
 
 
     

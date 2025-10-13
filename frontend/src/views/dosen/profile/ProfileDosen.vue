@@ -1,5 +1,5 @@
 <template>
-  <div class="p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+  <div class="p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
     <!-- Kartu Profil Dosen -->
     <Card
       class="border-0 shadow-lg shadow-purple-50 bg-gradient-to-br from-white to-purple-50/30 overflow-hidden"
@@ -60,7 +60,6 @@
     >
       <CardContent class="flex flex-col items-center text-center p-8">
         <!-- Preview TTD -->
-
         <div v-if="dosen?.ttd_path">
           <img
             :src="`${baseUrl}/files/uploads/${dosen.ttd_path}`"
@@ -78,13 +77,21 @@
 
         <p class="text-lg font-semibold text-purple-800">TTD</p>
 
-        <!-- Upload Input -->
-        <input
-          type="file"
-          accept="image/png"
-          @change="handleTTDUpload"
-          class="mt-4 file:bg-purple-50 file:text-purple-700 file:border-0 file:rounded file:px-4 file:py-2 file:mr-4 hover:file:bg-purple-100"
-        />
+        <!-- Tombol untuk menampilkan SignatureCreator -->
+        <Button
+          @click="showSignatureCreator = !showSignatureCreator"
+          class="bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-lg px-4 py-2 mt-2 transition-all"
+        >
+          ✍️ {{ showSignatureCreator ? "Tutup Editor TTD" : "Gambar TTD" }}
+        </Button>
+
+        <!-- SignatureCreator muncul setelah tombol diklik -->
+        <div
+          v-if="showSignatureCreator"
+          class="mt-4 w-full bg-purple-200 text-purple-700"
+        >
+          <SignatureCreator @update:finalImage="signatureFinalBlob = $event" />
+        </div>
 
         <!-- Link Panduan -->
         <a
@@ -105,7 +112,7 @@
     </Card>
 
     <!-- Kartu QR Code -->
-    <Card
+    <!-- <Card
       class="border-0 shadow-lg shadow-gray-50 bg-gradient-to-br from-white to-gray-50/50 overflow-hidden"
     >
       <CardHeader class="pb-4">
@@ -151,56 +158,54 @@
           Scan untuk akses cepat informasi dosen
         </p>
       </CardContent>
-    </Card>
+    </Card> -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/axios";
+import SignatureCreator from "@/components/dosen/SignatureCreator.vue";
+const showSignatureCreator = ref(false);
 
 const auth = useAuthStore();
 const user = computed(() => auth.user);
 const dosen = computed(() => auth.dosen); // langsung dari store
-const selectedFile = ref<File | null>(null);
 
 const baseUrl = import.meta.env.VITE_API_URL;
 
-// Handle pilih file
-const handleTTDUpload = (e: Event) => {
-  const target = e.target as HTMLInputElement;
-  if (target.files && target.files[0]) {
-    selectedFile.value = target.files[0];
-  }
-};
+const signatureFinalBlob = ref<Blob | null>(null);
 
 // Submit upload signature
 const submitTTD = async () => {
-  if (!selectedFile.value) {
+  if (!signatureFinalBlob.value) {
     alert("Silakan pilih file TTD terlebih dahulu!");
     return;
   }
 
   try {
-    const formData = new FormData();
-    formData.append("signature", selectedFile.value);
+    const formDataToSend = new FormData();
+    const signatureFileToSend = new File(
+      [signatureFinalBlob.value],
+      `signature_${Date.now()}.png`,
+      { type: "image/png" }
+    );
+    formDataToSend.append("signature", signatureFileToSend);
 
-    const res = await apiClient.post("/dosen/upload-signature", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const res = await apiClient.post(
+      "/dosen/upload-signature",
+      formDataToSend,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
 
     // Update store langsung
     auth.setDosen(res.data.data);
-    selectedFile.value = null;
+    signatureFinalBlob.value = null;
 
     alert("TTD berhasil diperbarui!");
   } catch (err) {

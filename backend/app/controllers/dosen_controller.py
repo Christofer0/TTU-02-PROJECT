@@ -33,12 +33,9 @@ def upload_signature():
         if file.filename == '':
             return error_response("No file selected", status_code=400)
         
-        # img = Image.open(file)
-        # if img.width != 900 or img.height != 900:
-        #     return error_response(f"Ukuran TTD harus 724X344 px", status_code=400)
-        
         # Save file
-        file_path, error = save_uploaded_file(file, 'signatures')
+        from utils.file_utils import save_signature_direct
+        file_path, error = save_signature_direct(file)
         if error:
             return error_response(f"Failed to save signature: {error}", status_code=400)
         

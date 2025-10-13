@@ -84,8 +84,6 @@ def verify_document(permohonan_id):
             'signed_at': permohonan.signed_at.isoformat() if permohonan.signed_at else None,
             'created_at': permohonan.created_at.isoformat() if permohonan.created_at else None
         }
-
-        print('RESPOND DATA CONTROLLER: ',response_data)
         
         return success_response(
             "Dokumen valid dan telah ditandatangani",

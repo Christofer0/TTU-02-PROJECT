@@ -1,3 +1,5 @@
+import { components } from "reka-ui/constant";
+
 const routes = [
   {
     path: "dashboard",
@@ -20,6 +22,10 @@ const routes = [
   {
     path: "list-permohonan-TTD",
     component: () => import("@/views/dosen/permohonan/ListPermohonanTTD.vue"),
+  },
+  {
+    path: "testDosen",
+    component: () => import("@/components/dosen/SignatureCreator.vue"),
   },
 ];
 

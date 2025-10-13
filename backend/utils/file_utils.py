@@ -149,3 +149,111 @@ def is_signature_file(filename):
         return False
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in SIGNATURE_EXTENSIONS
+
+def save_signature_direct(file, subfolder='signatures'):
+    """
+    Save signature file directly without resize
+    (untuk file yang sudah di-resize di frontend)
+    
+    Args:
+        file: FileStorage object from Flask
+        subfolder: Subfolder untuk save (default: signatures)
+    
+    Returns:
+        (file_path, error)
+    """
+    if not file or not file.filename:
+        return None, "No file provided"
+    
+    # Validate file type
+    if not allowed_file(file.filename):
+        return None, "File type not allowed"
+    
+    try:
+        # Generate unique filename
+        filename = generate_unique_filename(file.filename)
+        
+        # Create directory
+        upload_folder = current_app.config['UPLOAD_FOLDER']
+        target_dir = os.path.join(upload_folder, subfolder)
+        os.makedirs(target_dir, exist_ok=True)
+        
+        # Save file
+        file_path = os.path.join(target_dir, filename)
+        file.save(file_path)
+        
+        # Validate dimensions (optional)
+        try:
+            from PIL import Image
+            img = Image.open(file_path)
+            if img.width != 724 or img.height != 344:
+                # File dari frontend should be 724x344
+                # But we can be flexible
+                pass
+        except:
+            pass
+        
+        # Return relative path
+        return os.path.join(subfolder, filename), None
+        
+    except Exception as e:
+        return None, f"Failed to save signature: {str(e)}"
+    
+def save_signature_smart(file, target_size=(724, 344)):
+    """
+    Smart save signature:
+    - If already target size → save directly
+    - If different size → resize
+    
+    Args:
+        file: FileStorage object from Flask
+        target_size: Target size (width, height)
+    
+    Returns:
+        (file_path, error)
+    """
+    if not file or not file.filename:
+        return None, "No file provided"
+    
+    if not allowed_file(file.filename):
+        return None, "File type not allowed"
+    
+    try:
+        from PIL import Image
+        import io
+        
+        # Read image
+        img = Image.open(file)
+        
+        # Check if already target size
+        if img.width == target_size[0] and img.height == target_size[1]:
+            # Already perfect size, save directly
+            filename = generate_unique_filename(file.filename)
+            upload_folder = current_app.config['UPLOAD_FOLDER']
+            signatures_dir = os.path.join(upload_folder, 'signatures')
+            os.makedirs(signatures_dir, exist_ok=True)
+            
+            file_path = os.path.join(signatures_dir, filename)
+            
+            # Convert to RGB if needed
+            if img.mode in ('RGBA', 'LA', 'P'):
+                background = Image.new('RGB', img.size, (255, 255, 255))
+                if img.mode == 'P':
+                    img = img.convert('RGBA')
+                if img.mode == 'RGBA':
+                    background.paste(img, mask=img.split()[-1])
+                else:
+                    background.paste(img)
+                img = background
+            
+            # Save
+            img.save(file_path, quality=95, optimize=True)
+            
+            return os.path.join('signatures', filename), None
+        
+        else:
+            # Need resize, use existing function
+            return save_and_resize_signature(file, target_size)
+            
+    except Exception as e:
+        return None, f"Failed to process signature: {str(e)}"

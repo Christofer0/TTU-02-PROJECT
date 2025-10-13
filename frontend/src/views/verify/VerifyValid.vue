@@ -204,15 +204,39 @@ const verifyDocument = async () => {
   }
 };
 
+// const formatDate = (dateString: string) => {
+//   if (!dateString) return "-";
+//   const date = new Date(dateString);
+//   return date.toLocaleString("id-ID", {
+//     year: "numeric",
+//     month: "long",
+//     day: "numeric",
+//     hour: "2-digit",
+//     minute: "2-digit",
+//   });
+// };
+
 const formatDate = (dateString: string) => {
   if (!dateString) return "-";
-  const date = new Date(dateString);
+
+  // 1. Tambahkan akhiran 'Z' pada string untuk secara eksplisit
+  //    memberi tahu browser bahwa ini adalah waktu UTC.
+  //    Contoh: "2025-10-12T06:09:18.628644" menjadi "2025-10-12T06:09:18.628644Z"
+  const utcDateString = dateString.endsWith("Z")
+    ? dateString
+    : dateString + "Z";
+
+  const date = new Date(utcDateString);
+
+  // 2. Gunakan toLocaleString dengan timeZone 'Asia/Jakarta' (WIB)
   return date.toLocaleString("id-ID", {
     year: "numeric",
     month: "long",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    // KUNCI: Konversi dari UTC ke WIB saat menampilkan
+    timeZone: "Asia/Jakarta",
   });
 };
 

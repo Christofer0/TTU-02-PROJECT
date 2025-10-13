@@ -8,6 +8,7 @@ from app.models.dosen_model import Dosen
 from app.models.user_model import User
 from .base_repository import BaseRepository
 
+
 class PermohonanRepository(BaseRepository):
     """Repository for Permohonan operations"""
     

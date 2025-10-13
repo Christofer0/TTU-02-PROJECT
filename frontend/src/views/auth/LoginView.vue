@@ -433,12 +433,12 @@
             </select>
           </div>
 
-          <div>
+          <!-- <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Tanda Tangan <span class="text-gray-500 text-xs">(Optional)</span>
             </label>
 
-            <!-- File Upload Area -->
+            
             <div
               @click="triggerFileInput"
               @dragover.prevent="onDragOver"
@@ -459,7 +459,7 @@
                 class="hidden"
               />
 
-              <!-- Preview if file selected -->
+              
               <div v-if="signaturePreview" class="space-y-2">
                 <img
                   :src="signaturePreview"
@@ -476,7 +476,7 @@
                 </button>
               </div>
 
-              <!-- Upload prompt -->
+    
               <div v-else class="space-y-2">
                 <svg
                   class="mx-auto h-12 w-12 text-gray-400"
@@ -502,6 +502,17 @@
                 </p>
               </div>
             </div>
+          </div> -->
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Tanda Tangan <span class="text-gray-500 text-xs">(Optional)</span>
+            </label>
+
+            <!-- ✅ USE SignatureCreator Component -->
+            <SignatureCreator
+              @update:finalImage="signatureFinalBlob = $event"
+            />
           </div>
 
           <button
@@ -585,7 +596,7 @@ import { apiClient } from "@/lib/axios";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
-
+import SignatureCreator from "@/components/dosen/SignatureCreator.vue";
 // =========================
 // Types
 // =========================
@@ -638,11 +649,13 @@ const formDataDosen = ref({
   jabatan: "",
   fakultas_id: 1,
 });
-const signatureFile = ref<File | null>(null);
-const signaturePreview = ref<string>("");
-const signatureFileName = ref<string>("");
-const isDragging = ref(false);
-const fileInput = ref<HTMLInputElement | null>(null);
+// const signatureFile = ref<File | null>(null);
+// const signaturePreview = ref<string>("");
+// const signatureFileName = ref<string>("");
+// const isDragging = ref(false);
+// const fileInput = ref<HTMLInputElement | null>(null);
+
+const signatureFinalBlob = ref<Blob | null>(null);
 
 // =========================
 // Config
@@ -851,6 +864,69 @@ const handleCompleteProfileAdmin = async () => {
 // =========================
 // Handle complete profile (Dosen)
 // =========================
+// const handleCompleteProfileDosen = async () => {
+//   loading.value = true;
+//   error.value = "";
+
+//   try {
+//     const formDataToSend = new FormData();
+//     formDataToSend.append("token", profileData.value?.token || "");
+//     formDataToSend.append("nomor_induk", formDataDosen.value.nomor_induk);
+//     formDataToSend.append("no_hp", formDataDosen.value.no_hp);
+//     formDataToSend.append("gelar_depan", formDataDosen.value.gelar_depan || "");
+//     formDataToSend.append(
+//       "gelar_belakang",
+//       formDataDosen.value.gelar_belakang || ""
+//     );
+//     formDataToSend.append("jabatan", formDataDosen.value.jabatan || "");
+//     formDataToSend.append(
+//       "fakultas_id",
+//       formDataDosen.value.fakultas_id.toString()
+//     );
+
+//     if (signatureFile.value) {
+//       formDataToSend.append("tanda_tangan", signatureFile.value);
+//     }
+
+//     const res = await apiClient.post(
+//       `/auth/google/complete-profile/dosen`,
+//       formDataToSend,
+//       {
+//         headers: {
+//           "Content-Type": "multipart/form-data",
+//         },
+//       }
+//     );
+
+//     const data = res.data;
+
+//     if (data.success) {
+//       localStorage.setItem("access_token", data.data.access_token);
+//       localStorage.setItem("refresh_token", data.data.refresh_token);
+//       localStorage.setItem("user", JSON.stringify(data.data.user));
+
+//       authStore.setAccessToken(data.data.access_token);
+//       authStore.setRefreshToken(data.data.refresh_token);
+//       authStore.setUser(data.data.user);
+//       authStore.setDosen(data.data.dosen);
+
+//       step.value = "success";
+//       setTimeout(() => {
+//         router.push("/dosen/dashboard");
+//       }, 1500);
+//     } else {
+//       error.value = data.message || "Gagal menyimpan profil dosen.";
+//     }
+//   } catch (err: any) {
+//     error.value =
+//       err.response?.data?.message ||
+//       "Terjadi kesalahan saat menyimpan profil dosen.";
+//     console.error(err);
+//   } finally {
+//     loading.value = false;
+//   }
+// };
+
 const handleCompleteProfileDosen = async () => {
   loading.value = true;
   error.value = "";
@@ -871,8 +947,15 @@ const handleCompleteProfileDosen = async () => {
       formDataDosen.value.fakultas_id.toString()
     );
 
-    if (signatureFile.value) {
-      formDataToSend.append("tanda_tangan", signatureFile.value);
+    // ✅ UPDATED: Kirim final blob dari editor
+    if (signatureFinalBlob.value) {
+      // Convert Blob to File
+      const signatureFileToSend = new File(
+        [signatureFinalBlob.value],
+        `signature_${Date.now()}.png`,
+        { type: "image/png" }
+      );
+      formDataToSend.append("signature", signatureFileToSend);
     }
 
     const res = await apiClient.post(
@@ -917,51 +1000,51 @@ const handleCompleteProfileDosen = async () => {
 // =========================
 // File Upload Handlers (Dosen)
 // =========================
-const triggerFileInput = () => {
-  fileInput.value?.click();
-};
+// const triggerFileInput = () => {
+//   fileInput.value?.click();
+// };
 
-const onFileSelect = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  if (!input.files?.length) return;
+// const onFileSelect = (event: Event) => {
+//   const input = event.target as HTMLInputElement;
+//   if (!input.files?.length) return;
 
-  const file = input.files[0];
-  signatureFile.value = file;
-  signatureFileName.value = file.name;
+//   const file = input.files[0];
+//   signatureFile.value = file;
+//   signatureFileName.value = file.name;
 
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    signaturePreview.value = e.target?.result as string;
-  };
-  reader.readAsDataURL(file);
-};
+//   const reader = new FileReader();
+//   reader.onload = (e) => {
+//     signaturePreview.value = e.target?.result as string;
+//   };
+//   reader.readAsDataURL(file);
+// };
 
-const removeSignature = () => {
-  signatureFile.value = null;
-  signaturePreview.value = "";
-  signatureFileName.value = "";
-  if (fileInput.value) fileInput.value.value = "";
-};
+// const removeSignature = () => {
+//   signatureFile.value = null;
+//   signaturePreview.value = "";
+//   signatureFileName.value = "";
+//   if (fileInput.value) fileInput.value.value = "";
+// };
 
-const onDragOver = () => {
-  isDragging.value = true;
-};
-const onDragLeave = () => {
-  isDragging.value = false;
-};
-const onDrop = (event: DragEvent) => {
-  isDragging.value = false;
-  const files = event.dataTransfer?.files;
-  if (!files?.length) return;
+// const onDragOver = () => {
+//   isDragging.value = true;
+// };
+// const onDragLeave = () => {
+//   isDragging.value = false;
+// };
+// const onDrop = (event: DragEvent) => {
+//   isDragging.value = false;
+//   const files = event.dataTransfer?.files;
+//   if (!files?.length) return;
 
-  const file = files[0];
-  signatureFile.value = file;
-  signatureFileName.value = file.name;
+//   const file = files[0];
+//   signatureFile.value = file;
+//   signatureFileName.value = file.name;
 
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    signaturePreview.value = e.target?.result as string;
-  };
-  reader.readAsDataURL(file);
-};
+//   const reader = new FileReader();
+//   reader.onload = (e) => {
+//     signaturePreview.value = e.target?.result as string;
+//   };
+//   reader.readAsDataURL(file);
+// };
 </script>

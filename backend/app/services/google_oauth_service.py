@@ -411,12 +411,24 @@ class GoogleOAuthService:
             # import secrets
             
             # Process signature upload if provided
+            # ttd_path = None
+            # if signature_file:
+            #     from utils.file_utils import save_and_resize_signature
+            #     ttd_path, error = save_and_resize_signature(signature_file, target_size=(724, 344))
+            #     if error:
+            #         return None, f"Gagal upload tanda tangan: {error}"
             ttd_path = None
             if signature_file:
-                from utils.file_utils import save_and_resize_signature
-                ttd_path, error = save_and_resize_signature(signature_file, target_size=(724, 344))
-                if error:
-                    return None, f"Gagal upload tanda tangan: {error}"
+            # ✅ OPTION A: Save direct (jika dari editor frontend)
+                from utils.file_utils import save_signature_direct
+                ttd_path, error = save_signature_direct(signature_file)
+            
+            # ✅ OPTION B: Resize (jika upload manual tanpa editor)
+                # from utils.file_utils import save_and_resize_signature
+                # ttd_path, error = save_and_resize_signature(signature_file, target_size=(724, 344))
+            
+            if error:
+                return None, f"Gagal upload tanda tangan: {error}"
             
             # Create user
             user_data = {
@@ -461,4 +473,36 @@ class GoogleOAuthService:
             
         except Exception as e:
             return None, f"Gagal membuat akun dosen: {str(e)}"
+        
+"""
+def create_dosen_from_google(
+    self, 
+    google_data: dict, 
+    nomor_induk: str,
+    no_hp: str, 
+    gelar_depan: str, 
+    gelar_belakang: str, 
+    jabatan: str, 
+    fakultas_id: int,
+    signature_file=None
+) -> tuple:
+    # ... existing code ...
+    
+    try:
+        # Process signature upload if provided
+        ttd_path = None
+        if signature_file:
+            # ✅ OPTION A: Save direct (jika dari editor frontend)
+            from utils.file_utils import save_signature_direct
+            ttd_path, error = save_signature_direct(signature_file)
+            
+            # ✅ OPTION B: Resize (jika upload manual tanpa editor)
+            # from utils.file_utils import save_and_resize_signature
+            # ttd_path, error = save_and_resize_signature(signature_file, target_size=(724, 344))
+            
+            if error:
+                return None, f"Gagal upload tanda tangan: {error}"
+        
+        # ... rest of code ...
+"""    
 

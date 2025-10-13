@@ -91,7 +91,7 @@
         active-class="bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 shadow-sm border-l-4 border-blue-500"
       >
         <div
-          class="w-8 h-8 bg-gradient-to-br from-slate-400 to-slate-500 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow"
+          class="w-8 h-8 bg-gradient-to-br from-amber-400 to-amber-500 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow"
         >
           <svg
             class="w-4 h-4 text-white"
