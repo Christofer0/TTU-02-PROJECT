@@ -24,9 +24,13 @@ const routes = [
     component: () => import("@/views/dosen/permohonan/ListPermohonanTTD.vue"),
   },
   {
-    path: "testDosen",
-    component: () => import("@/components/dosen/SignatureCreator.vue"),
+    path: "history",
+    component: () => import("@/views/dosen/HistoryDosen.vue"),
   },
+  // {
+  //   path: "testDosen",
+  //   component: () => import("@/components/dosen/SignatureCreator.vue"),
+  // },
 ];
 
 export const dosen_routes = routes;

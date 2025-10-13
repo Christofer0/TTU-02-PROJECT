@@ -1,16 +1,21 @@
-<!-- PermohonanListPermohonanTTD.vue - FIXED VERSION -->
 <template>
-  <div class="p-4">
-    <h2 class="text-xl font-bold mb-4">Daftar Permohonan TTD</h2>
+  <div
+    class="p-6 bg-gradient-to-br from-orange-50 to-indigo-50 min-h-screen rounded-xl shadow-sm"
+  >
+    <h2 class="text-2xl font-bold mb-6 text-indigo-800 flex items-center gap-2">
+      📜 Daftar Permohonan Tanda Tangan Digital
+    </h2>
 
     <!-- Filter -->
-    <div class="flex items-center gap-4 mb-4">
-      <label for="jenis">Filter Jenis Permohonan:</label>
+    <div class="flex items-center gap-3 mb-6 bg-white p-3 rounded-lg shadow-sm">
+      <label for="jenis" class="text-gray-700 font-medium"
+        >Filter Jenis Permohonan:</label
+      >
       <select
         id="jenis"
         v-model="selectedJenis"
         @change="fetchPermohonan"
-        class="border px-2 py-1 rounded"
+        class="border border-indigo-200 focus:ring-2 focus:ring-indigo-400 px-3 py-2 rounded-lg outline-none"
       >
         <option value="">Semua</option>
         <option
@@ -24,126 +29,125 @@
     </div>
 
     <!-- Table -->
-    <table class="w-full border border-gray-200">
-      <thead class="bg-gray-100">
-        <tr>
-          <th class="p-2 border">No</th>
-          <th class="p-2 border">Judul</th>
-          <th class="p-2 border">Mahasiswa</th>
-          <th class="p-2 border">Jenis</th>
-          <th class="p-2 border">Status</th>
-          <th class="p-2 border">File</th>
-          <th class="p-2 border">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(permohonan, index) in permohonanList" :key="permohonan.id">
-          <td class="p-2 border">{{ index + 1 }}</td>
-          <td class="p-2 border">{{ permohonan.judul }}</td>
-          <td class="p-2 border">{{ permohonan.mahasiswa?.user?.nama }}</td>
-          <td class="p-2 border">
-            {{ permohonan.jenis_permohonan?.nama_jenis_permohonan }}
-          </td>
-          <td class="p-2 border">
-            <span
-              :class="getStatusClass(permohonan.status_permohonan)"
-              class="px-2 py-1 rounded text-xs font-semibold"
-            >
-              {{ getStatusText(permohonan.status_permohonan) }}
-            </span>
-          </td>
-          <td class="p-2 border">
-            <!-- Tampilkan file yang sudah ditandatangani jika ada -->
-            <div v-if="permohonan.file_signed_path" class="space-y-1">
-              <a
-                :href="`${baseUrl}/files/signed/${permohonan.file_signed_path}`"
-                target="_blank"
-                class="text-green-600 underline block"
+    <div
+      class="overflow-x-auto bg-white shadow-md rounded-xl border border-gray-200"
+    >
+      <table class="w-full border-collapse">
+        <thead class="bg-indigo-100 text-indigo-900 uppercase text-sm">
+          <tr>
+            <th class="p-3 border">No</th>
+            <th class="p-3 border text-left">Judul</th>
+            <th class="p-3 border text-left">Mahasiswa</th>
+            <th class="p-3 border text-left">Deskripsi</th>
+            <th class="p-3 border text-center">Status</th>
+            <th class="p-3 border text-center">File</th>
+            <th class="p-3 border text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="(permohonan, index) in permohonanList"
+            :key="permohonan.id"
+            class="hover:bg-orange-50 transition-all"
+          >
+            <td class="p-3 border text-center">{{ index + 1 }}</td>
+            <td class="p-3 border">{{ permohonan.judul }}</td>
+            <td class="p-3 border">{{ permohonan.mahasiswa?.user?.nama }}</td>
+            <td class="p-3 border text-gray-700">{{ permohonan.deskripsi }}</td>
+            <td class="p-3 border text-center">
+              <span
+                :class="getStatusClass(permohonan.status_permohonan)"
+                class="px-2 py-1 rounded-full text-xs font-semibold tracking-wide"
               >
-                📄 File Tertandatangani
-              </a>
+                {{ getStatusText(permohonan.status_permohonan) }}
+              </span>
+            </td>
+            <td class="p-3 border text-center">
+              <div v-if="permohonan.file_signed_path" class="space-y-1">
+                <a
+                  :href="`${baseUrl}/files/signed/${permohonan.file_signed_path}`"
+                  target="_blank"
+                  class="text-teal-600 hover:text-teal-800 underline block"
+                >
+                  📄 File Tertandatangani
+                </a>
+                <a
+                  v-if="permohonan.file_path"
+                  :href="`${baseUrl}/files/uploads/${permohonan.file_path}`"
+                  target="_blank"
+                  class="text-indigo-500 hover:text-indigo-700 underline text-xs block"
+                >
+                  📎 File Asli
+                </a>
+              </div>
               <a
-                v-if="permohonan.file_path"
+                v-else-if="permohonan.file_path"
                 :href="`${baseUrl}/files/uploads/${permohonan.file_path}`"
                 target="_blank"
-                class="text-blue-500 underline text-xs block"
+                class="text-indigo-600 hover:text-indigo-800 underline"
               >
-                📎 File Asli
+                📄 Lihat / Download
               </a>
-            </div>
-            <!-- Jika belum ditandatangani, tampilkan file asli -->
-            <a
-              v-else-if="permohonan.file_path"
-              :href="`${baseUrl}/files/uploads/${permohonan.file_path}`"
-              target="_blank"
-              class="text-blue-500 underline"
-            >
-              📄 Lihat / Download
-            </a>
-            <span v-else>-</span>
-          </td>
-          <td class="p-2 border">
-            <div class="flex gap-2 flex-wrap">
-              <!-- Tombol Tandatangani untuk status pending atau disetujui -->
-              <button
-                v-if="
-                  ['pending', 'disetujui'].includes(
-                    permohonan.status_permohonan
-                  )
-                "
-                class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 disabled:bg-gray-400"
-                :disabled="signingPermohonan === permohonan.id"
-                @click="signPermohonan(permohonan.id)"
-              >
-                <span v-if="signingPermohonan === permohonan.id">
-                  ⏳ Menandatangani...
-                </span>
-                <span v-else> ✍️ Tandatangani </span>
-              </button>
+              <span v-else class="text-gray-400 italic">-</span>
+            </td>
+            <td class="p-3 border text-center">
+              <div class="flex justify-center gap-2 flex-wrap">
+                <!-- Tombol Tandatangani -->
+                <button
+                  v-if="
+                    ['pending', 'disetujui'].includes(
+                      permohonan.status_permohonan
+                    )
+                  "
+                  class="bg-teal-500 text-white px-3 py-1 rounded-lg hover:bg-teal-600 disabled:bg-gray-400 shadow-sm"
+                  :disabled="signingPermohonan === permohonan.id"
+                  @click="signPermohonan(permohonan.id)"
+                >
+                  <span v-if="signingPermohonan === permohonan.id">
+                    ⏳ Menandatangani...
+                  </span>
+                  <span v-else>✍️ Tandatangani</span>
+                </button>
 
-              <!-- Tombol Tolak hanya untuk pending -->
-              <button
-                v-if="permohonan.status_permohonan === 'pending'"
-                class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                @click="rejectPermohonan(permohonan.id)"
-              >
-                ❌ Tolak
-              </button>
+                <!-- Tombol Tolak -->
+                <button
+                  v-if="permohonan.status_permohonan === 'pending'"
+                  class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 shadow-sm"
+                  @click="rejectPermohonan(permohonan.id)"
+                >
+                  ❌ Tolak
+                </button>
+              </div>
+            </td>
+          </tr>
 
-              <!-- Tombol Detail
-              <button
-                class="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
-                @click="viewDetail(permohonan.id)"
-              >
-                👁️ Detail
-              </button> -->
-            </div>
-          </td>
-        </tr>
-        <tr v-if="permohonanList.length === 0">
-          <td class="p-2 border text-center" colspan="7">
-            Belum ada permohonan
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          <tr v-if="permohonanList.length === 0">
+            <td class="p-4 border text-center text-gray-500" colspan="7">
+              Belum ada permohonan
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <!-- Pagination -->
-    <div class="mt-4 flex justify-end gap-2">
+    <div class="mt-6 flex justify-end items-center gap-2 text-sm text-gray-600">
       <button
-        class="px-3 py-1 border rounded disabled:opacity-50"
+        class="px-3 py-1 border rounded-lg hover:bg-indigo-50 disabled:opacity-50 disabled:hover:bg-transparent"
         :disabled="page === 1"
         @click="prevPage"
       >
-        Prev
+        ◀ Prev
       </button>
-      <span>Halaman {{ page }}</span>
+      <span
+        >Halaman <strong>{{ page }}</strong></span
+      >
       <button
-        class="px-3 py-1 border rounded disabled:opacity-50"
+        class="px-3 py-1 border rounded-lg hover:bg-indigo-50 disabled:opacity-50 disabled:hover:bg-transparent"
         :disabled="permohonanList.length < perPage"
         @click="nextPage"
       >
-        Next
+        Next ▶
       </button>
     </div>
   </div>
@@ -297,11 +301,9 @@ export default {
 </script>
 
 <style scoped>
-/* Optional: smooth transitions */
 button {
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
-
 button:disabled {
   cursor: not-allowed;
 }

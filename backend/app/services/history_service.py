@@ -6,16 +6,25 @@ class HistoryService:
     def __init__(self):
         self.repo_permohonan = PermohonanRepository()
 
-    def get_history_by_status(self, user_id: str, status: str):
+    def get_history_by_status(self, user_id: str, role:str,status: str):
         """Get history of permohonan for a mahasiswa by status"""
-        history = self.repo_permohonan.get_by_mahasiswa(user_id, status)
+        if role == "mahasiswa":
+            history = self.repo_permohonan.get_by_mahasiswa(user_id, status)
+        elif role == "dosen":
+            history = self.repo_permohonan.get_by_dosen(user_id,status)
+        elif role == "admin":
+            pass
         return history
 
-    def get_counts_by_status(self, user_id: str):
+    def get_counts_by_status(self, user_id: str,role:str):
         """Get counts of permohonan grouped by status for a mahasiswa"""
         # Ambil semua permohonan milik mahasiswa
-        all_permohonan = self.repo_permohonan.get_by_mahasiswa(user_id)
-        
+        if role == "mahasiswa":
+            all_permohonan = self.repo_permohonan.get_by_mahasiswa(user_id)
+        elif role == "dosen":
+            all_permohonan = self.repo_permohonan.get_by_dosen(user_id)
+        elif role == "admin":
+            pass
         # Hitung jumlah per status
         counts = {
             "pending": 0,
@@ -33,11 +42,20 @@ class HistoryService:
 
         return counts
 
-    def get_total_permohonan(self, user_id: str):
+    def get_total_permohonan(self, user_id: str, role:str):
         """Get total permohonan for a mahasiswa"""
-        all_permohonan = self.repo_permohonan.get_by_mahasiswa(user_id)
+        if role == "mahasiswa":
+            all_permohonan = self.repo_permohonan.get_by_mahasiswa(user_id)
+        elif role == "dosen":
+            all_permohonan = self.repo_permohonan.get_by_dosen(user_id)
         return len(all_permohonan)
     
-    def get_all_history(self, user_id: str):
+    def get_all_history(self, user_id: str,role:str):
         """Get all permohonan tanpa filter status"""
-        return self.repo_permohonan.get_by_mahasiswa(user_id)
+        if role == "mahasiswa":
+            get_all_permohonan = self.repo_permohonan.get_by_mahasiswa(user_id)
+        elif role == "dosen":
+            get_all_permohonan = self.repo_permohonan.get_by_dosen(user_id)
+        elif role == "admin":
+            pass
+        return get_all_permohonan

@@ -38,14 +38,20 @@ schema_history = PermohonanSchema(many=True)
 
 @history_bp.route("/<string:status>", methods=["GET"])
 @jwt_required()
-# @role_required('mahasiswa')
 def get_history_status(status):
     try:
         # ambil user dari JWT, jangan dari parameter
         current_user = get_current_user()
         user_id = current_user.id
-
-        history = service_history.get_history_by_status(user_id, status)
+        # print("Current User:", current_user.role, current_user.id)
+        role = current_user.role
+        
+        history = service_history.get_history_by_status(user_id,role,status)
+        # elif role == "dosen":
+        # elif role == " admin":
+        # print("role admin")
+        # else:
+            # pass
         if not history:
             return error_response("No history found", status_code=404)
 
@@ -74,8 +80,8 @@ def get_counts_by_status():
     try:
         current_user = get_current_user()
         user_id = current_user.id
-
-        counts = service_history.get_counts_by_status(user_id)
+        role = current_user.role
+        counts = service_history.get_counts_by_status(user_id,role)
         if counts is None:
             return error_response("No history found", status_code=404)
 
@@ -88,7 +94,6 @@ def get_counts_by_status():
 
 @history_bp.route("/total", methods=["GET"])
 @jwt_required()
-# @role_required('mahasiswa')
 def get_total_history():
     """
     Get total seluruh permohonan mahasiswa (semua status)
@@ -100,8 +105,8 @@ def get_total_history():
     try:
         current_user = get_current_user()
         user_id = current_user.id
-
-        total = service_history.get_total_permohonan(user_id)
+        role = current_user.role
+        total = service_history.get_total_permohonan(user_id,role)
         if total is None:
             return error_response("No history found", status_code=404)
 
@@ -117,6 +122,7 @@ def get_total_history():
 def get_all_history():
     current_user = get_current_user()
     user_id = current_user.id
-    all_history = service_history.get_all_history(user_id)
+    role = current_user.role
+    all_history = service_history.get_all_history(user_id,role)
     return success_response("All history retrieved", schema_history.dump(all_history))
 
