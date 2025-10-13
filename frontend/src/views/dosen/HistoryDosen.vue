@@ -346,12 +346,23 @@ onMounted(async () => {
                   </td>
                   <td class="px-4 py-4 text-center">
                     <div
-                      v-if="item?.komentar_penolakan"
-                      class="text-red-600 text-xs"
+                      v-if="item?.status_permohonan == 'ditolak'"
+                      class="text-red-600 text-xs bg-red-100 px-4 py-2 rounded-lg shadow-sm"
                     >
                       {{ item.komentar_penolakan }}
                     </div>
-                    <div v-else class="text-gray-400 text-sm">-</div>
+                    <div
+                      v-else-if="item?.status_permohonan == 'ditandatangani'"
+                      class="text-green-600 font-semibold text-xs bg-green-100 px-4 py-2 rounded-lg shadow-sm"
+                    >
+                      Approved
+                    </div>
+                    <div
+                      v-else-if="item?.status_permohonan == 'pending'"
+                      class="text-yellow-400 text-xs bg-yellow-100 px-4 py-2 rounded-lg shadow-sm"
+                    >
+                      Waiting
+                    </div>
                   </td>
                 </tr>
               </tbody>

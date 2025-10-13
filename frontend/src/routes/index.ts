@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import { mahasiswa_routes } from "./mahasiswa_routes";
 import { permohonan_routes } from "./permohonan_routes";
 import { dosen_routes } from "./dosen_routes";
+import { admin_routes } from "./admin_routes";
 import { useAuthStore } from "@/stores/auth";
 import VerifyValid from "@/views/verify/VerifyValid.vue";
 import GoogleLoginFlow from "@/views/auth/LoginView.vue";
@@ -20,6 +21,12 @@ const routes = [
     name: "verifyDocument",
     component: VerifyValid,
     meta: { requiresAuth: false, layout: "none" },
+  },
+  {
+    path: "/admin",
+    component: () => import("@/layouts/AdminLayouts.vue"),
+    children: admin_routes,
+    meta: { requiresAuth: true, role: "admin" },
   },
   {
     path: "/mahasiswa",

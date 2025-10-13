@@ -101,12 +101,19 @@ class PermohonanService(BaseService):
             permohonan.komentar_penolakan = komentar_penolakan
             
             # Create history record
-            self._create_history_record(permohonan, 'rejected', komentar_penolakan)
+            # self._create_history_record(permohonan, 'rejected', komentar_penolakan)
             
             db.session.commit()
             
+            #remove file
+            from utils.file_utils import delete_file
+            file_permohonan_path = permohonan.file_path
+
+            if file_permohonan_path:
+                delete_file(file_permohonan_path)
+
             # Send notification to mahasiswa
-            notify_permohonan_rejected(permohonan)
+            # notify_permohonan_rejected(permohonan)
             
             return permohonan, None
             
@@ -130,6 +137,7 @@ class PermohonanService(BaseService):
             # Check if file exists
             if not permohonan.file_path:
                 return None, "No file attached to this permohonan"
+            
             
             # Get mahasiswa data
             from app.models.mahasiswa_model import Mahasiswa
@@ -175,12 +183,20 @@ class PermohonanService(BaseService):
             permohonan.qr_code_data = qr_data_string
             
             # Create history
-            self._create_history_record(permohonan, 'signed')
+            # self._create_history_record(permohonan, 'signed')
             
             db.session.commit()
             
+            #remove file
+            from utils.file_utils import delete_file
+            file_permohonan_path = permohonan.file_path
+
+            if file_permohonan_path:
+                delete_file(file_permohonan_path)
+
+
             # Send notification
-            notify_permohonan_signed(permohonan)
+            # notify_permohonan_signed(permohonan)
             
             return permohonan, None
             
@@ -217,7 +233,6 @@ class PermohonanService(BaseService):
 
             from app.models.dosen_model import Dosen
             dosen = db.session.query(Dosen).filter_by(user_id=dosen_id).first()
-            print(dosen.nama_lengkap,'nama lengkap DOSEN')
             
             # Proses PDF
             success, error = add_signature_to_pdf(

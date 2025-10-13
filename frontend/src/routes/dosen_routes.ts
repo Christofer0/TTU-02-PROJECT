@@ -1,5 +1,3 @@
-import { components } from "reka-ui/constant";
-
 const routes = [
   {
     path: "dashboard",

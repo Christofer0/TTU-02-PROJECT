@@ -531,62 +531,6 @@
             </div>
           </div>
 
-          <!-- Popular Services -->
-          <div v-else class="space-y-4">
-            <h3
-              class="text-base font-bold text-gray-900 uppercase tracking-wide"
-            >
-              Layanan Populer
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div
-                v-for="service in popularServices"
-                :key="service.id"
-                @click="selectPopularService(service)"
-                class="bg-white border-2 border-gray-200 hover:border-blue-600 rounded-lg p-5 hover:shadow-md transition-all cursor-pointer group"
-              >
-                <div class="flex items-center gap-3">
-                  <div
-                    class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"
-                  >
-                    <svg
-                      class="w-5 h-5 text-blue-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      ></path>
-                    </svg>
-                  </div>
-                  <div class="flex-1">
-                    <h4 class="font-bold text-sm text-gray-900 mb-1">
-                      {{ service.nama }}
-                    </h4>
-                    <p class="text-xs text-gray-600">{{ service.deskripsi }}</p>
-                  </div>
-                  <svg
-                    class="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 5l7 7-7 7"
-                    ></path>
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- Loading State -->
           <div v-if="loading" class="text-center py-12">
             <div
@@ -646,7 +590,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const baseUrl = import.meta.env.VITE_API_URL;
+// const baseUrl = import.meta.env.VITE_API_URL;
 
 // Auth store and router
 const { user } = useAuthStore();
@@ -662,7 +606,7 @@ const error = ref("");
 // Time and date
 const currentTime = ref("");
 const currentDate = ref("");
-const timeInterval = ref<NodeJS.Timeout | null>(null);
+const timeInterval = ref<number | null>(null);
 
 // Stats data from API
 const totalPermohonan = ref(0);
@@ -672,25 +616,6 @@ const permohonanDitolak = ref(0);
 
 // Recent history data from API
 const recentHistory = ref<any[]>([]);
-
-// Popular services
-const popularServices = ref([
-  {
-    id: 1,
-    nama: "Surat Keterangan Aktif",
-    deskripsi: "Surat untuk keperluan administrasi",
-  },
-  {
-    id: 2,
-    nama: "Transkrip Nilai",
-    deskripsi: "Transkrip nilai sementara",
-  },
-  {
-    id: 3,
-    nama: "Surat Pengantar PKL",
-    deskripsi: "Surat untuk praktik kerja lapangan",
-  },
-]);
 
 // Helper functions for history
 const getStatusColor = (status: string) => {
@@ -783,18 +708,18 @@ const updateTime = () => {
   });
 };
 
-const selectPopularService = (service: any) => {
-  const foundService = jenisPermohonanList.value.find((item) =>
-    item.nama_jenis_permohonan
-      .toLowerCase()
-      .includes(service.nama.toLowerCase())
-  );
+// const selectPopularService = (service: any) => {
+//   const foundService = jenisPermohonanList.value.find((item) =>
+//     item.nama_jenis_permohonan
+//       .toLowerCase()
+//       .includes(service.nama.toLowerCase())
+//   );
 
-  if (foundService) {
-    selectedJenis.value = foundService.id;
-    hasilSurat.value = foundService;
-  }
-};
+//   if (foundService) {
+//     selectedJenis.value = foundService.id;
+//     hasilSurat.value = foundService;
+//   }
+// };
 
 // Lifecycle hooks
 onMounted(async () => {

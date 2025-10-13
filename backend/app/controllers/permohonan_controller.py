@@ -193,7 +193,6 @@ def sign_permohonan(current_user, permohonan_id):
             return error_response("Please upload your signature first", status_code=400)
         
         permohonan, error = permohonan_service.sign_permohonan(permohonan_id, current_user.id)
-        print("permohonan di controller: ",permohonan)
         if error:
             return error_response(error, status_code=400)
         
