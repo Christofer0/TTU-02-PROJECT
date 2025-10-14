@@ -122,6 +122,12 @@ class PermohonanRepository(BaseRepository):
             query = query.filter(Permohonan.id_jenis_permohonan == jenis_id)
         
         return query.order_by(Permohonan.created_at.desc()).all()
+    
+    def get_all_permohonan(self):
+        permohonan_list = self.get_all()
+        print("DATA DARI DB:", permohonan_list)
+        return permohonan_list
+        
 
     
     

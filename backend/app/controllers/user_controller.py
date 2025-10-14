@@ -68,6 +68,7 @@ def update_profile():
             return error_response(error, status_code=400)
         
         user_data = user_schema.dump(user)
+        
         return success_response("Profile updated successfully", user_data)
         
     except ValidationError as e:

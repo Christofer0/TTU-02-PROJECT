@@ -230,143 +230,165 @@ onMounted(async () => {
         </div>
 
         <div class="p-6">
-          <!-- Loading -->
-          <div v-if="loading" class="text-center py-12">
-            <div
-              class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-indigo-600"
-            ></div>
-            <p class="text-gray-600 mt-4 font-medium">Memuat data...</p>
-          </div>
-
-          <!-- Error -->
-          <div v-else-if="error" class="text-center py-12">
-            <div
-              class="inline-flex items-center justify-center w-16 h-16 bg-rose-100 rounded-full mb-4"
-            >
-              <XCircle class="w-8 h-8 text-rose-600" />
-            </div>
-            <p class="text-gray-700 font-medium">{{ error }}</p>
-          </div>
-
-          <!-- Empty -->
-          <div v-else-if="historyList.length === 0" class="text-center py-12">
+          <!-- Kondisi untuk Total Permohonan -->
+          <div v-if="selectedStatus === 'total'" class="text-center py-12">
             <div
               class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4"
             >
               <FileText class="w-8 h-8 text-gray-400" />
             </div>
             <p class="text-gray-600 font-medium">
-              Tidak ada data untuk status ini
+              Tidak ada tabel untuk status Total Permohonan
             </p>
           </div>
 
-          <!-- Table -->
-          <div v-else class="overflow-x-auto">
-            <table class="w-full">
-              <thead>
-                <tr class="bg-gray-50 border-y border-gray-200">
-                  <th
-                    class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase"
-                  >
-                    No
-                  </th>
-                  <th
-                    class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase"
-                  >
-                    Tanggal
-                  </th>
-                  <th
-                    class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase"
-                  >
-                    Mahasiswa
-                  </th>
-                  <th
-                    class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase"
-                  >
-                    Status
-                  </th>
-                  <th
-                    class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase"
-                  >
-                    File
-                  </th>
-                  <th
-                    class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase"
-                  >
-                    Keterangan
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-200">
-                <tr
-                  v-for="(item, index) in historyList"
-                  :key="item.id"
-                  class="hover:bg-gray-50 transition-colors"
-                >
-                  <td class="px-4 py-4 font-semibold">{{ index + 1 }}</td>
-                  <td class="px-4 py-4">
-                    {{
-                      new Date(item.created_at).toLocaleDateString("id-ID", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })
-                    }}
-                  </td>
-                  <td class="px-4 py-4">
-                    {{ item.mahasiswa?.user?.nama || "-" }}
-                  </td>
-                  <td class="px-4 py-4 text-center">
-                    <span
-                      :class="[
-                        'inline-flex items-center rounded-md px-3 py-1.5 text-xs font-bold uppercase tracking-wide',
-                        getStatusBadge(item.status_permohonan).class,
-                      ]"
+          <!-- Table ditampilkan hanya jika bukan Total Permohonan -->
+          <div v-else>
+            <!-- Loading -->
+            <div v-if="loading" class="text-center py-12">
+              <div
+                class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-indigo-600"
+              ></div>
+              <p class="text-gray-600 mt-4 font-medium">Memuat data...</p>
+            </div>
+
+            <!-- Error -->
+            <div v-else-if="error" class="text-center py-12">
+              <div
+                class="inline-flex items-center justify-center w-16 h-16 bg-rose-100 rounded-full mb-4"
+              >
+                <XCircle class="w-8 h-8 text-rose-600" />
+              </div>
+              <p class="text-gray-700 font-medium">{{ error }}</p>
+            </div>
+
+            <!-- Empty -->
+            <div v-else-if="historyList.length === 0" class="text-center py-12">
+              <div
+                class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4"
+              >
+                <FileText class="w-8 h-8 text-gray-400" />
+              </div>
+              <p class="text-gray-600 font-medium">
+                Tidak ada data untuk status ini
+              </p>
+            </div>
+
+            <!-- Table -->
+            <div v-else class="overflow-x-auto">
+              <table class="w-full">
+                <thead>
+                  <tr class="bg-gray-50 border-y border-gray-200">
+                    <th
+                      class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase"
                     >
-                      <component
-                        :is="getStatusBadge(item.status_permohonan).icon"
-                        class="w-3.5 h-3.5 mr-1.5"
-                      />
-                      {{ getStatusBadge(item.status_permohonan).text }}
-                    </span>
-                  </td>
-                  <td class="px-4 py-4 text-center">
-                    <a
-                      v-if="item?.file_signed_path"
-                      :href="`${baseUrl}/files/signed/${item.file_signed_path}`"
-                      target="_blank"
-                      class="inline-flex items-center gap-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-md transition-colors"
+                      No
+                    </th>
+                    <th
+                      class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase"
                     >
-                      <FileText class="w-4 h-4" />
-                      Lihat PDF
-                    </a>
-                    <span v-else class="text-xs text-gray-500 font-medium">
-                      Tidak Ada
-                    </span>
-                  </td>
-                  <td class="px-4 py-4 text-center">
-                    <div
-                      v-if="item?.status_permohonan == 'ditolak'"
-                      class="text-red-600 text-xs bg-red-100 px-4 py-2 rounded-lg shadow-sm"
+                      Tanggal
+                    </th>
+                    <th
+                      class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase"
                     >
-                      {{ item.komentar_penolakan }}
-                    </div>
-                    <div
-                      v-else-if="item?.status_permohonan == 'ditandatangani'"
-                      class="text-green-600 font-semibold text-xs bg-green-100 px-4 py-2 rounded-lg shadow-sm"
+                      Mahasiswa
+                    </th>
+                    <th
+                      class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase"
                     >
-                      Approved
-                    </div>
-                    <div
-                      v-else-if="item?.status_permohonan == 'pending'"
-                      class="text-yellow-400 text-xs bg-yellow-100 px-4 py-2 rounded-lg shadow-sm"
+                      Status
+                    </th>
+                    <th
+                      class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase"
                     >
-                      Waiting
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                      File
+                    </th>
+                    <th
+                      v-if="selectedStatus === 'ditolak'"
+                      class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase"
+                    >
+                      Alasan Saya
+                    </th>
+                    <th
+                      v-else
+                      class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase"
+                    >
+                      Keterangan
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  <tr
+                    v-for="(item, index) in historyList"
+                    :key="item.id"
+                    class="hover:bg-gray-50 transition-colors"
+                  >
+                    <td class="px-4 py-4 font-semibold">{{ index + 1 }}</td>
+                    <td class="px-4 py-4">
+                      {{
+                        new Date(item.created_at).toLocaleDateString("id-ID", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      }}
+                    </td>
+                    <td class="px-4 py-4">
+                      {{ item.mahasiswa?.user?.nama || "-" }}
+                    </td>
+                    <td class="px-4 py-4 text-center">
+                      <span
+                        :class="[
+                          'inline-flex items-center rounded-md px-3 py-1.5 text-xs font-bold uppercase tracking-wide',
+                          getStatusBadge(item.status_permohonan).class,
+                        ]"
+                      >
+                        <component
+                          :is="getStatusBadge(item.status_permohonan).icon"
+                          class="w-3.5 h-3.5 mr-1.5"
+                        />
+                        {{ getStatusBadge(item.status_permohonan).text }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-4 text-center">
+                      <a
+                        v-if="item?.file_signed_path"
+                        :href="`${baseUrl}/files/signed/${item.file_signed_path}`"
+                        target="_blank"
+                        class="inline-flex items-center gap-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-md transition-colors"
+                      >
+                        <FileText class="w-4 h-4" />
+                        Lihat PDF
+                      </a>
+                      <span v-else class="text-xs text-gray-500 font-medium">
+                        Tidak Ada
+                      </span>
+                    </td>
+                    <td class="px-4 py-4 text-center">
+                      <div
+                        v-if="item?.status_permohonan == 'ditolak'"
+                        class="text-red-600 text-xs bg-red-100 px-4 py-2 rounded-lg shadow-sm"
+                      >
+                        {{ item.komentar_penolakan }}
+                      </div>
+                      <div
+                        v-else-if="item?.status_permohonan == 'ditandatangani'"
+                        class="text-green-600 font-semibold text-xs bg-green-100 px-4 py-2 rounded-lg shadow-sm"
+                      >
+                        Approved
+                      </div>
+                      <div
+                        v-else-if="item?.status_permohonan == 'pending'"
+                        class="text-yellow-400 text-xs bg-yellow-100 px-4 py-2 rounded-lg shadow-sm"
+                      >
+                        Waiting
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

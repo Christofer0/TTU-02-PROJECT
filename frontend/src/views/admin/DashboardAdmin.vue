@@ -196,7 +196,7 @@
       </div>
 
       <!-- Recent Activity / Permohonan Terbaru -->
-      <Card class="shadow-sm border border-gray-200 bg-white overflow-hidden">
+      <!-- <Card class="shadow-sm border border-gray-200 bg-white overflow-hidden">
         <div
           class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4"
         >
@@ -218,7 +218,7 @@
               Permohonan Terbaru
             </h2>
             <a
-              href="/admin/permohonan"
+              href="/admin/list-permohonan"
               class="text-white hover:bg-blue-500 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1"
             >
               Lihat Semua
@@ -240,7 +240,7 @@
         </div>
 
         <CardContent class="p-6">
-          <!-- Recent Permohonan Items -->
+
           <div class="space-y-3">
             <div
               v-for="item in recentPermohonan"
@@ -305,7 +305,7 @@
             </div>
           </div>
 
-          <!-- Empty State -->
+
           <div v-if="recentPermohonan.length === 0" class="text-center py-12">
             <div
               class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4"
@@ -330,7 +330,7 @@
             </p>
           </div>
         </CardContent>
-      </Card>
+      </Card> -->
 
       <!-- Quick Access Menu -->
       <Card class="shadow-sm border border-gray-200 bg-white overflow-hidden">
@@ -365,7 +365,7 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Kelola Permohonan -->
             <a
-              href="/admin/permohonan"
+              href="/admin/list-permohonan"
               class="group p-6 bg-white border-2 border-blue-100 rounded-lg hover:border-blue-300 hover:shadow-md transition-all cursor-pointer"
             >
               <div class="flex items-center gap-4">
@@ -390,7 +390,7 @@
                   <h4
                     class="font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors"
                   >
-                    Kelola Permohonan
+                    Detail Permohonan
                   </h4>
                   <p class="text-sm text-gray-600">
                     Lihat dan kelola semua permohonan surat
@@ -537,77 +537,77 @@ const totalMahasiswa = ref(0);
 const totalDosen = ref(0);
 
 // Recent permohonan data from API
-const recentPermohonan = ref<any[]>([]);
+// const recentPermohonan = ref<any[]>([]);
 
-// Helper functions for status
-const getStatusColor = (status: string) => {
-  const normalizedStatus = status.toLowerCase();
-  switch (normalizedStatus) {
-    case "ditandatangani":
-    case "disetujui":
-      return "bg-green-50";
-    case "pending":
-      return "bg-amber-50";
-    case "ditolak":
-      return "bg-red-50";
-    default:
-      return "bg-gray-50";
-  }
-};
+// // Helper functions for status
+// const getStatusColor = (status: string) => {
+//   const normalizedStatus = status.toLowerCase();
+//   switch (normalizedStatus) {
+//     case "ditandatangani":
+//     case "disetujui":
+//       return "bg-green-50";
+//     case "pending":
+//       return "bg-amber-50";
+//     case "ditolak":
+//       return "bg-red-50";
+//     default:
+//       return "bg-gray-50";
+//   }
+// };
 
-const getStatusIconColor = (status: string) => {
-  const normalizedStatus = status.toLowerCase();
-  switch (normalizedStatus) {
-    case "ditandatangani":
-    case "disetujui":
-      return "text-green-600";
-    case "pending":
-      return "text-amber-600";
-    case "ditolak":
-      return "text-red-600";
-    default:
-      return "text-gray-600";
-  }
-};
+// const getStatusIconColor = (status: string) => {
+//   const normalizedStatus = status.toLowerCase();
+//   switch (normalizedStatus) {
+//     case "ditandatangani":
+//     case "disetujui":
+//       return "text-green-600";
+//     case "pending":
+//       return "text-amber-600";
+//     case "ditolak":
+//       return "text-red-600";
+//     default:
+//       return "text-gray-600";
+//   }
+// };
 
-const getStatusBadgeClass = (status: string) => {
-  const normalizedStatus = status.toLowerCase();
-  switch (normalizedStatus) {
-    case "ditandatangani":
-    case "disetujui":
-      return "bg-green-600 text-white";
-    case "pending":
-      return "bg-amber-500 text-white";
-    case "ditolak":
-      return "bg-red-600 text-white";
-    default:
-      return "bg-gray-600 text-white";
-  }
-};
+// const getStatusBadgeClass = (status: string) => {
+//   const normalizedStatus = status.toLowerCase();
+//   switch (normalizedStatus) {
+//     case "ditandatangani":
+//     case "disetujui":
+//       return "bg-green-600 text-white";
+//     case "pending":
+//       return "bg-amber-500 text-white";
+//     case "ditolak":
+//       return "bg-red-600 text-white";
+//     default:
+//       return "bg-gray-600 text-white";
+//   }
+// };
 
-const getStatusLabel = (status: string) => {
-  const normalizedStatus = status.toLowerCase();
-  switch (normalizedStatus) {
-    case "ditandatangani":
-    case "disetujui":
-      return "Selesai";
-    case "pending":
-      return "Pending";
-    case "ditolak":
-      return "Ditolak";
-    default:
-      return "Unknown";
-  }
-};
+// const getStatusLabel = (status: string) => {
+//   const normalizedStatus = status.toLowerCase();
+//   switch (normalizedStatus) {
+//     case "ditandatangani":
+//     case "disetujui":
+//       return "Selesai";
+//     case "pending":
+//       return "Pending";
+//     case "ditolak":
+//       return "Ditolak";
+//     default:
+//       return "Unknown";
+//   }
+// };
 
-const formatDate = (dateStr: string) => {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-};
+// const formatDate = (dateStr: string) => {
+//   const date = new Date(dateStr);
+//   return date.toLocaleDateString("id-ID", {
+//     day: "2-digit",
+//     month: "short",
+//     year: "numeric",
+//   });
+// };
 
 // Computed properties
 const getGreeting = () => {
@@ -635,7 +635,7 @@ onMounted(async () => {
   updateTime();
   timeInterval.value = setInterval(updateTime, 1000);
   await loadStats();
-  await loadRecentPermohonan();
+  // await loadRecentPermohonan();
 });
 
 onUnmounted(() => {
@@ -658,32 +658,32 @@ async function loadStats() {
   } catch (error: any) {
     console.error("⚠️ Gagal fetch admin stats:", error);
     // Fallback dummy data untuk development
-    totalPermohonan.value = 125;
-    permohonanPending.value = 8;
-    totalMahasiswa.value = 850;
-    totalDosen.value = 45;
+    // totalPermohonan.value = 125;
+    // permohonanPending.value = 8;
+    // totalMahasiswa.value = 850;
+    // totalDosen.value = 45;
   }
 }
 
-async function loadRecentPermohonan() {
-  try {
-    // Fetch recent permohonan for admin (all users)
-    const res = await apiClient.get(`/admin/permohonan/recent`);
-    const allPermohonan = res.data.data || [];
+// async function loadRecentPermohonan() {
+//   try {
+//     // Fetch recent permohonan for admin (all users)
+//     const res = await apiClient.get(`/admin/permohonan/recent`);
+//     const allPermohonan = res.data.data || [];
 
-    // Sort by created_at desc and take first 5
-    recentPermohonan.value = allPermohonan
-      .sort(
-        (a: any, b: any) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      )
-      .slice(0, 5);
-  } catch (error: any) {
-    console.error("⚠️ Gagal fetch recent permohonan:", error);
-    // Fallback empty array
-    recentPermohonan.value = [];
-  }
-}
+//     // Sort by created_at desc and take first 5
+//     recentPermohonan.value = allPermohonan
+//       .sort(
+//         (a: any, b: any) =>
+//           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+//       )
+//       .slice(0, 5);
+//   } catch (error: any) {
+//     console.error("⚠️ Gagal fetch recent permohonan:", error);
+//     // Fallback empty array
+//     recentPermohonan.value = [];
+//   }
+// }
 </script>
 
 <style scoped>

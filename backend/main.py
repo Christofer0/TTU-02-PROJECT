@@ -63,7 +63,9 @@ def create_app(config_name=None):
     from app.controllers.history_controller import history_bp
     app.register_blueprint(history_bp, url_prefix='/api/history')
 
-
+    # admin get history
+    from app.controllers.admin_controller import admin_bp
+    app.register_blueprint(admin_bp, url_prefix='/api/admin')
     
     # Error handlers
     from utils.error_handlers import register_error_handlers

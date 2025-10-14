@@ -106,7 +106,7 @@
                   <span v-if="signingPermohonan === permohonan.id">
                     ⏳ Menandatangani...
                   </span>
-                  <span v-else>✍️ Tandatangani</span>
+                  <span v-else>Tandatangan</span>
                 </button>
 
                 <!-- Tombol Tolak -->
@@ -115,7 +115,7 @@
                   class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 shadow-sm"
                   @click="rejectPermohonan(permohonan.id)"
                 >
-                  ❌ Tolak
+                  Tolak
                 </button>
               </div>
             </td>

@@ -13,7 +13,7 @@ class HistoryService:
         elif role == "dosen":
             history = self.repo_permohonan.get_by_dosen(user_id,status)
         elif role == "admin":
-            pass
+            history = self.repo_permohonan.get_by_status(status)
         return history
 
     def get_counts_by_status(self, user_id: str,role:str):
@@ -24,7 +24,7 @@ class HistoryService:
         elif role == "dosen":
             all_permohonan = self.repo_permohonan.get_by_dosen(user_id)
         elif role == "admin":
-            pass
+            all_permohonan = self.repo_permohonan.get_all()
         # Hitung jumlah per status
         counts = {
             "pending": 0,
@@ -48,6 +48,8 @@ class HistoryService:
             all_permohonan = self.repo_permohonan.get_by_mahasiswa(user_id)
         elif role == "dosen":
             all_permohonan = self.repo_permohonan.get_by_dosen(user_id)
+        elif role == "admin":
+            all_permohonan = self.repo_permohonan.get_all()
         return len(all_permohonan)
     
     def get_all_history(self, user_id: str,role:str):
@@ -57,5 +59,5 @@ class HistoryService:
         elif role == "dosen":
             get_all_permohonan = self.repo_permohonan.get_by_dosen(user_id)
         elif role == "admin":
-            pass
+            get_all_permohonan = self.repo_permohonan.get_all_permohonan()
         return get_all_permohonan
