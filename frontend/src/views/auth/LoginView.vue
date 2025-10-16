@@ -1,68 +1,105 @@
-<!-- GoogleLoginFlow.vue -->
 <template>
   <div
-    class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4"
+    class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-white via-stone-100 to-zinc-100"
   >
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+    <!-- Card -->
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
       <!-- Login Step -->
-      <div v-if="step === 'login'" class="space-y-6">
-        <div class="text-center">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">Selamat Datang</h1>
-          <p class="text-gray-600">Masuk dengan akun UKSW Anda</p>
+      <div
+        v-if="step === 'login'"
+        class="flex flex-col justify-center items-center px-4"
+      >
+        <!-- Header -->
+        <div class="text-center mb-8">
+          <!-- Logo -->
+          <div class="flex justify-center mb-4">
+            <img
+              src="@/assets/logo.png"
+              alt="FTI-Service Logo"
+              class="w-16 h-16"
+            />
+          </div>
+
+          <h1 class="text-3xl font-bold text-gray-900 mb-2 tracking-tight">
+            Selamat Datang 👋
+          </h1>
+          <p class="text-gray-600 text-sm">
+            Masuk ke
+            <span class="font-semibold text-slate-600">FTI-Service</span>
+            menggunakan akun UKSW Anda
+          </p>
         </div>
 
         <!-- Error Alert -->
-        <div
-          v-if="error"
-          class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3"
-        >
-          <svg
-            class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+        <transition name="fade">
+          <div
+            v-if="error"
+            class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3 mb-4 w-full"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <p class="text-sm text-red-800">{{ error }}</p>
-        </div>
-
-        <!-- Google Sign-In Button -->
-        <div class="flex justify-center">
-          <div id="googleSignInButton"></div>
-        </div>
-
-        <!-- Loading -->
-        <div v-if="loading" class="flex justify-center">
-          <svg
-            class="w-6 h-6 animate-spin text-blue-600"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
+            <svg
+              class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
+              fill="none"
               stroke="currentColor"
-              stroke-width="4"
-            ></circle>
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <p class="text-sm text-red-800">{{ error }}</p>
+          </div>
+        </transition>
+
+        <!-- Google Sign-In -->
+        <div class="flex justify-center mb-6">
+          <div
+            id="googleSignInButton"
+            class="transform transition-transform hover:scale-105"
+          ></div>
         </div>
 
-        <div class="text-center text-sm text-gray-500">
-          <p>Gunakan email @uksw.edu atau @student.uksw.edu</p>
+        <!-- Loading Spinner -->
+        <transition name="fade">
+          <div v-if="loading" class="flex justify-center mb-4">
+            <svg
+              class="w-6 h-6 animate-spin text-emerald-600"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          </div>
+        </transition>
+
+        <!-- Email Info -->
+        <div class="text-center text-sm text-gray-500 mb-2">
+          <p>
+            Gunakan email
+            <span class="font-medium">@uksw.edu</span> atau
+            <span class="font-medium">@student.uksw.edu</span>
+          </p>
         </div>
+
+        <!-- Footer -->
+        <footer class="mt-8 text-gray-400 text-xs text-center">
+          © {{ new Date().getFullYear() }} FTI-Service<br />
+          Fakultas Teknologi Informasi UKSW
+        </footer>
       </div>
 
       <!-- Complete Profile Step - Mahasiswa -->
@@ -433,77 +470,6 @@
             </select>
           </div>
 
-          <!-- <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Tanda Tangan <span class="text-gray-500 text-xs">(Optional)</span>
-            </label>
-
-            
-            <div
-              @click="triggerFileInput"
-              @dragover.prevent="onDragOver"
-              @dragleave.prevent="onDragLeave"
-              @drop.prevent="onDrop"
-              :class="[
-                'border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors',
-                isDragging
-                  ? 'border-green-500 bg-green-50'
-                  : 'border-gray-300 hover:border-green-400',
-              ]"
-            >
-              <input
-                ref="fileInput"
-                type="file"
-                accept="image/png,image/jpeg,image/jpg,image/gif"
-                @change="onFileSelect"
-                class="hidden"
-              />
-
-              
-              <div v-if="signaturePreview" class="space-y-2">
-                <img
-                  :src="signaturePreview"
-                  alt="Preview"
-                  class="mx-auto max-h-32 rounded border"
-                />
-                <p class="text-sm text-gray-600">{{ signatureFileName }}</p>
-                <button
-                  type="button"
-                  @click.stop="removeSignature"
-                  class="text-xs text-red-600 hover:text-red-700"
-                >
-                  Hapus
-                </button>
-              </div>
-
-    
-              <div v-else class="space-y-2">
-                <svg
-                  class="mx-auto h-12 w-12 text-gray-400"
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 48 48"
-                >
-                  <path
-                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-                <div class="text-sm text-gray-600">
-                  <span class="text-green-600 font-medium"
-                    >Klik untuk upload</span
-                  >
-                  atau drag & drop
-                </div>
-                <p class="text-xs text-gray-500">
-                  PNG, JPG, GIF (akan diresize otomatis ke 724x344px)
-                </p>
-              </div>
-            </div>
-          </div> -->
-
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Tanda Tangan <span class="text-gray-500 text-xs">(Optional)</span>
@@ -861,72 +827,6 @@ const handleCompleteProfileAdmin = async () => {
   }
 };
 
-// =========================
-// Handle complete profile (Dosen)
-// =========================
-// const handleCompleteProfileDosen = async () => {
-//   loading.value = true;
-//   error.value = "";
-
-//   try {
-//     const formDataToSend = new FormData();
-//     formDataToSend.append("token", profileData.value?.token || "");
-//     formDataToSend.append("nomor_induk", formDataDosen.value.nomor_induk);
-//     formDataToSend.append("no_hp", formDataDosen.value.no_hp);
-//     formDataToSend.append("gelar_depan", formDataDosen.value.gelar_depan || "");
-//     formDataToSend.append(
-//       "gelar_belakang",
-//       formDataDosen.value.gelar_belakang || ""
-//     );
-//     formDataToSend.append("jabatan", formDataDosen.value.jabatan || "");
-//     formDataToSend.append(
-//       "fakultas_id",
-//       formDataDosen.value.fakultas_id.toString()
-//     );
-
-//     if (signatureFile.value) {
-//       formDataToSend.append("tanda_tangan", signatureFile.value);
-//     }
-
-//     const res = await apiClient.post(
-//       `/auth/google/complete-profile/dosen`,
-//       formDataToSend,
-//       {
-//         headers: {
-//           "Content-Type": "multipart/form-data",
-//         },
-//       }
-//     );
-
-//     const data = res.data;
-
-//     if (data.success) {
-//       localStorage.setItem("access_token", data.data.access_token);
-//       localStorage.setItem("refresh_token", data.data.refresh_token);
-//       localStorage.setItem("user", JSON.stringify(data.data.user));
-
-//       authStore.setAccessToken(data.data.access_token);
-//       authStore.setRefreshToken(data.data.refresh_token);
-//       authStore.setUser(data.data.user);
-//       authStore.setDosen(data.data.dosen);
-
-//       step.value = "success";
-//       setTimeout(() => {
-//         router.push("/dosen/dashboard");
-//       }, 1500);
-//     } else {
-//       error.value = data.message || "Gagal menyimpan profil dosen.";
-//     }
-//   } catch (err: any) {
-//     error.value =
-//       err.response?.data?.message ||
-//       "Terjadi kesalahan saat menyimpan profil dosen.";
-//     console.error(err);
-//   } finally {
-//     loading.value = false;
-//   }
-// };
-
 const handleCompleteProfileDosen = async () => {
   loading.value = true;
   error.value = "";
@@ -996,55 +896,10 @@ const handleCompleteProfileDosen = async () => {
     loading.value = false;
   }
 };
-
-// =========================
-// File Upload Handlers (Dosen)
-// =========================
-// const triggerFileInput = () => {
-//   fileInput.value?.click();
-// };
-
-// const onFileSelect = (event: Event) => {
-//   const input = event.target as HTMLInputElement;
-//   if (!input.files?.length) return;
-
-//   const file = input.files[0];
-//   signatureFile.value = file;
-//   signatureFileName.value = file.name;
-
-//   const reader = new FileReader();
-//   reader.onload = (e) => {
-//     signaturePreview.value = e.target?.result as string;
-//   };
-//   reader.readAsDataURL(file);
-// };
-
-// const removeSignature = () => {
-//   signatureFile.value = null;
-//   signaturePreview.value = "";
-//   signatureFileName.value = "";
-//   if (fileInput.value) fileInput.value.value = "";
-// };
-
-// const onDragOver = () => {
-//   isDragging.value = true;
-// };
-// const onDragLeave = () => {
-//   isDragging.value = false;
-// };
-// const onDrop = (event: DragEvent) => {
-//   isDragging.value = false;
-//   const files = event.dataTransfer?.files;
-//   if (!files?.length) return;
-
-//   const file = files[0];
-//   signatureFile.value = file;
-//   signatureFileName.value = file.name;
-
-//   const reader = new FileReader();
-//   reader.onload = (e) => {
-//     signaturePreview.value = e.target?.result as string;
-//   };
-//   reader.readAsDataURL(file);
-// };
 </script>
+
+<style>
+.element {
+  background: linear-gradient(to right, #cffafe, #d8b4fe, #0ea5e9);
+}
+</style>

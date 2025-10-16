@@ -16,7 +16,7 @@ const baseUrl = import.meta.env.VITE_API_URL;
 // ==================
 const selectedStatus = ref("total");
 const historyList = ref<any[]>([]);
-const counts = ref({
+const counts = ref<Record<string, number>>({
   disetujui: 0,
 });
 const total = ref(0);
@@ -26,10 +26,15 @@ const error = ref<string | null>(null);
 // ==================
 // COMPUTED
 // ==================
-const visibleCounts = computed(() => {
-  const filtered: Record<string, any> = { ...counts.value, total: total.value };
+const visibleCounts = computed<Record<string, number>>(() => {
+  const filtered: Record<string, number> = {
+    ...counts.value,
+    total: total.value,
+  };
   delete filtered.disetujui;
   delete filtered.pending;
+  delete filtered.total_mahasiswa;
+  delete filtered.total_dosen;
   return filtered;
 });
 
@@ -140,12 +145,13 @@ const getStatusBadge = (status: string) => {
 };
 
 const getStatusLabel = (key: string) => {
+  const safeKey = key.replace(/_/g, " ");
   const labels: Record<string, string> = {
     ditolak: "Permohonan Ditolak",
     ditandatangani: "Sudah Ditandatangani",
     total: "Total Permohonan",
   };
-  return labels[key] || key;
+  return labels[key] || safeKey;
 };
 
 // ==================
@@ -201,9 +207,9 @@ onMounted(async () => {
             </div>
             <div class="p-3 rounded-lg" :class="cardConfig[key]?.bgColor">
               <component
-                :is="cardConfig[key]?.icon"
+                :is="cardConfig[key]?.icon || FileText"
                 class="w-6 h-6"
-                :class="cardConfig[key]?.iconColor"
+                :class="cardConfig[key]?.iconColor || 'text-slate-400'"
               />
             </div>
           </div>
@@ -265,7 +271,7 @@ onMounted(async () => {
           </div>
 
           <!-- Table -->
-          <div v-else class="overflow-x-auto">
+          <div v-else class="overflow-x-auto w-full">
             <table class="w-full">
               <thead>
                 <tr class="bg-slate-50 border-y border-slate-200">
@@ -371,14 +377,3 @@ onMounted(async () => {
     </div>
   </div>
 </template>
-
-<style scoped>
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-</style>

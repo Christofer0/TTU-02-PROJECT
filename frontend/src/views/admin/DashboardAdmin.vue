@@ -366,14 +366,14 @@
             <!-- Kelola Permohonan -->
             <a
               href="/admin/list-permohonan"
-              class="group p-6 bg-white border-2 border-blue-100 rounded-lg hover:border-blue-300 hover:shadow-md transition-all cursor-pointer"
+              class="group p-6 bg-white border-2 border-yellow-100 rounded-lg hover:border-yellow-300 hover:shadow-md transition-all cursor-pointer"
             >
               <div class="flex items-center gap-4">
                 <div
-                  class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-blue-100 transition-colors"
+                  class="w-12 h-12 bg-yellow-50 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-yellow-100 transition-colors"
                 >
                   <svg
-                    class="w-6 h-6 text-blue-600"
+                    class="w-6 h-6 text-yellow-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -388,7 +388,7 @@
                 </div>
                 <div class="flex-1">
                   <h4
-                    class="font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors"
+                    class="font-bold text-gray-900 mb-1 group-hover:text-yellow-600 transition-colors"
                   >
                     Detail Permohonan
                   </h4>
@@ -397,7 +397,7 @@
                   </p>
                 </div>
                 <svg
-                  class="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors"
+                  class="w-5 h-5 text-yellow-400 group-hover:text-yellow-600 transition-colors"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -414,15 +414,15 @@
 
             <!-- Kelola User -->
             <a
-              href="/admin/user"
-              class="group p-6 bg-white border-2 border-green-100 rounded-lg hover:border-green-300 hover:shadow-md transition-all cursor-pointer"
+              href="/admin/users"
+              class="group p-6 bg-white border-2 border-slate-300 rounded-lg hover:border-slate-400 hover:shadow-md transition-all cursor-pointer"
             >
               <div class="flex items-center gap-4">
                 <div
-                  class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-green-100 transition-colors"
+                  class="w-12 h-12 bg-slate-50 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-slate-100 transition-colors"
                 >
                   <svg
-                    class="w-6 h-6 text-green-600"
+                    class="w-6 h-6 text-slate-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -437,7 +437,7 @@
                 </div>
                 <div class="flex-1">
                   <h4
-                    class="font-bold text-gray-900 mb-1 group-hover:text-green-600 transition-colors"
+                    class="font-bold text-gray-900 mb-1 group-hover:text-slate-600 transition-colors"
                   >
                     Kelola User
                   </h4>
@@ -446,7 +446,7 @@
                   </p>
                 </div>
                 <svg
-                  class="w-5 h-5 text-gray-400 group-hover:text-green-600 transition-colors"
+                  class="w-5 h-5 text-gray-400 group-hover:text-slate-600 transition-colors"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -463,7 +463,7 @@
 
             <!-- Laporan -->
             <a
-              href="/admin/laporan"
+              href="/admin/history"
               class="group p-6 bg-white border-2 border-purple-100 rounded-lg hover:border-purple-300 hover:shadow-md transition-all cursor-pointer"
             >
               <div class="flex items-center gap-4">
@@ -651,8 +651,8 @@ async function loadStats() {
     const statsRes = await apiClient.get(`/admin/stats`);
     const stats = statsRes.data.data || {};
 
-    totalPermohonan.value = stats.total_permohonan || 0;
-    permohonanPending.value = stats.permohonan_pending || 0;
+    totalPermohonan.value = stats.total || 0;
+    permohonanPending.value = stats.pending || 0;
     totalMahasiswa.value = stats.total_mahasiswa || 0;
     totalDosen.value = stats.total_dosen || 0;
   } catch (error: any) {

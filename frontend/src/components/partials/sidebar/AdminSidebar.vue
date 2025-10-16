@@ -3,7 +3,9 @@
     class="bg-white/95 backdrop-blur-sm border-r border-gray-100 flex flex-col h-full"
   >
     <!-- Bagian atas: menu -->
-    <div class="mt-6 px-6 space-y-2 flex-1 overflow-y-auto min-h-0">
+    <div
+      class="px-6 py-6 border-t border-gray-100 sticky bottom-0 bg-white/95 backdrop-blur-sm"
+    >
       <!-- Dashboard -->
       <RouterLink
         to="/admin/dashboard"

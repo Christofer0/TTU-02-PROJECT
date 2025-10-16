@@ -13,6 +13,17 @@ class UserRepository(BaseRepository):
         """Get user by nomor induk"""
         return self.session.query(User).filter_by(nomor_induk=nomor_induk).first()
     
+    def get_count_by_role(self,role: str) ->Optional[User]:
+        """Get count by role"""
+        return self.session.query(User).filter_by(role=role).count()
+        
+    def get_all(self, **filters):
+        return super().get_all(**filters)
+    
+    def get_all_by_role(self, role: str):
+        """Get all users by role"""
+        return self.session.query(User).filter_by(role=role).all()
+    
     def get_by_email(self, email: str) -> Optional[User]:
         """Get user by email"""
         return self.session.query(User).filter_by(email=email).first()

@@ -5,6 +5,7 @@ from app.repositories.mahasiswa_repository import MahasiswaRepository
 from app.repositories.dosen_repository import DosenRepository
 from utils.password_utils import hash_password
 from extensions import db
+from typing import List
 
 class UserService(BaseService):
     """Service for user operations"""
@@ -31,6 +32,12 @@ class UserService(BaseService):
             profile_data['role_data'] = self.dosen_repo.get_with_details(user_id)
         
         return profile_data, None
+    
+    def get_all(self):
+        return self.user_repo.get_all(), None
+    
+    def get_all_by_role(self, role: str) -> List:
+        return self.user_repo.get_all_by_role(role), None
     
     def update_user_profile(self, user_id: str, update_data: dict):
         """Update user profile"""
@@ -105,3 +112,22 @@ class UserService(BaseService):
         except Exception as e:
             db.session.rollback()
             return None, str(e)
+        
+    def toggle_status(self, user_id: str, action: str):
+        """Toggle user active status"""
+        try:
+            user = self.user_repo.get_by_id(user_id)
+            if not user:
+                return False, "User not found"
+            if action not in ['activate', 'deactivate']:
+                return False, "Invalid action"
+            if action == 'activate':
+                user.is_active = True
+            elif action == 'deactivate':
+                user.is_active = False
+            db.session.commit()
+            return True, "User status toggled successfully"
+            
+        except Exception as e:
+            db.session.rollback()
+            return False, str(e)

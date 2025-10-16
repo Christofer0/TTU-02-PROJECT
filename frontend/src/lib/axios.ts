@@ -25,21 +25,21 @@ apiClient.interceptors.request.use(
 );
 
 // ✅ OPSIONAL: Response interceptor untuk handle token refresh atau redirect
-// apiClient.interceptors.response.use(
-//   (response) => {
-//     return response;
-//   },
-//   (error) => {
-//     // Handle 401 Unauthorized - token expired atau invalid
-//     if (error.response && error.response.status === 401) {
-//       const authStore = useAuthStore();
-//       authStore.clearAuth(); // Clear auth state
+apiClient.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    // Handle 401 Unauthorized - token expired atau invalid
+    if (error.response && error.response.status === 401) {
+      const authStore = useAuthStore();
+      authStore.logout(); // Clear auth state
 
-//       // Redirect to login (sesuaikan dengan router Anda)
-//       if (window.location.pathname !== "/login") {
-//         window.location.href = "/login";
-//       }
-//     }
-//     return Promise.reject(error);
-//   }
-// );
+      // Redirect to login (sesuaikan dengan router Anda)
+      if (window.location.pathname !== "/") {
+        window.location.href = "/";
+      }
+    }
+    return Promise.reject(error);
+  }
+);

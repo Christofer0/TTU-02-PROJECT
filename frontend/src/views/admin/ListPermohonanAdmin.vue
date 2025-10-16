@@ -1,5 +1,7 @@
 <template>
-  <div class="p-6 bg-gradient-to-b from-yellow-50 to-orange-50 min-h-screen">
+  <div
+    class="w-full p-6 bg-gradient-to-b from-yellow-50 to-orange-50 min-h-screen"
+  >
     <h1
       class="text-3xl font-bold mb-6 text-gray-900 border-b-4 border-orange-500 pb-2 flex items-center gap-2"
     >
@@ -23,20 +25,20 @@
 
     <div
       v-else-if="permohonanList.length > 0"
-      class="overflow-x-auto shadow-lg rounded-xl border border-orange-200 bg-white"
+      class="overflow-x-auto w-full shadow-lg rounded-xl border border-orange-200 bg-white"
     >
-      <table class="min-w-full text-sm text-center text-gray-800">
+      <table class="min-w-max text-sm text-center text-gray-800">
         <thead
           class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white uppercase text-xs tracking-wider"
         >
           <tr>
-            <th class="px-5 py-3">Judul</th>
-            <th class="px-5 py-3">Jenis</th>
-            <th class="px-5 py-3">Mahasiswa</th>
-            <th class="px-5 py-3">Dosen</th>
-            <th class="px-5 py-3">Status</th>
-            <th class="px-5 py-3">Tanggal</th>
-            <th class="px-5 py-3">File</th>
+            <!-- <th class="px-5 py-3 w-1/4">Judul</th> -->
+            <th class="px-5 py-3 w-32">Jenis</th>
+            <th class="px-5 py-3 w-50">Mahasiswa</th>
+            <th class="px-5 py-3 w-1/6">Dosen</th>
+            <th class="px-5 py-3 w-25">Status</th>
+            <th class="px-5 py-3 w-30">Tanggal</th>
+            <th class="px-5 py-3 w-24">File</th>
           </tr>
         </thead>
 
@@ -46,21 +48,20 @@
             :key="item.id"
             class="hover:bg-orange-50 transition"
           >
-            <td class="px-5 py-3 font-medium text-gray-900">
-              {{ item.judul }}
-            </td>
-
             <td class="px-5 py-3">
               {{ item.jenis_permohonan?.nama_jenis_permohonan || "-" }}
             </td>
 
             <td class="px-5 py-3">
               <div class="font-semibold text-gray-900">
-                {{ item.mahasiswa?.user?.nama }}
+                {{ item.mahasiswa?.user?.nama }} -
+                <span class="text-ts text-gray-500 leading-sung">{{
+                  item.mahasiswa?.user?.nomor_induk
+                }}</span>
               </div>
-              <div class="text-xs text-gray-500 leading-snug">
+              <!-- <div class="text-xs text-gray-500 leading-snug">
                 {{ item.mahasiswa?.user?.nomor_induk }}
-              </div>
+              </div> -->
             </td>
 
             <td class="px-5 py-3">

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { apiClient } from "@/lib/axios";
-import { Users, UserCog, XCircle, Loader2 } from "lucide-vue-next";
+import { Users, UserCog, XCircle, Loader2, CheckCircle } from "lucide-vue-next";
+import type { User } from "@/types/models/user.type";
 
 const baseUrl = import.meta.env.VITE_API_URL;
 
@@ -10,9 +11,34 @@ const baseUrl = import.meta.env.VITE_API_URL;
 // ==================
 const users = ref<any[]>([]);
 const selectedRole = ref("semua");
-const roles = ref(["semua", "admin", "dosen", "mahasiswa"]);
+const roles = ref(["semua", "dosen", "mahasiswa"]);
 const loading = ref(false);
 const error = ref<string | null>(null);
+
+const formatDate = (dateString: string) => {
+  if (!dateString) return "-";
+
+  // Coba parse langsung
+  let date = new Date(dateString);
+
+  // Jika gagal, coba tambahkan Z (buat ISO tanpa Z)
+  if (isNaN(date.getTime())) {
+    date = new Date(dateString + "Z");
+  }
+
+  // Jika tetap invalid
+  if (isNaN(date.getTime())) return "-";
+
+  return date.toLocaleString("id-ID", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZone: "Asia/Jakarta", // ubah sesuai zona kamu
+  });
+};
 
 // ==================
 // FETCH DATA
@@ -23,9 +49,33 @@ async function fetchUsers(role: string) {
     error.value = null;
     let res;
     if (role === "semua") {
-      res = await apiClient.get(`/users`);
+      res = await apiClient.get(`/admin/users`);
+    } else if (role === "dosen") {
+      res = await apiClient.get(`admin/users/role/${role}`);
+      users.value = (res.data.data || []).map((u: any, index: number) => ({
+        no: index + 1,
+        nama_lengkap: u.nama_lengkap,
+        nomor_induk: u.nomor_induk,
+        jabatan: u.jabatan,
+        fakultas: u.fakultas,
+        email: u.email,
+        status: u.status,
+        terakhir_login: u.terakhir_login,
+      }));
+    } else if (role === "mahasiswa") {
+      res = await apiClient.get(`admin/users/role/${role}`);
+      users.value = (res.data.data || []).map((u: any) => ({
+        nama: u.nama,
+        nomor_induk: u.nomor_induk,
+        email: u.email,
+        no_hp: u.no_hp,
+        nama_prodi: u.nama_prodi,
+        semester: u.semester,
+        is_active: u.is_active,
+        last_login: u.last_login,
+      }));
     } else {
-      res = await apiClient.get(`/users/role/${role}`);
+      res = await apiClient.get(`admin/users/role/${role}`);
     }
     users.value = res.data.data || [];
   } catch (err: any) {
@@ -35,6 +85,40 @@ async function fetchUsers(role: string) {
     loading.value = false;
   }
 }
+
+const toggleStatus = async (user: User, action: "activate" | "deactivate") => {
+  if (loading.value) return;
+  loading.value = true;
+
+  try {
+    // buat pesan konfirmasi dinamis
+    const message =
+      action === "activate"
+        ? `Yakin ingin activate ${user.role} dengan NIM ${user.nomor_induk}?`
+        : `Yakin ingin deactivate ${user.role} dengan NIM ${user.nomor_induk}?`;
+
+    // tampilkan konfirmasi dan hentikan jika dibatalkan
+    const confirmed = confirm(message);
+    if (!confirmed) {
+      loading.value = false;
+      return; // <-- langsung berhenti di sini kalau user cancel
+    }
+
+    // lanjutkan request ke server hanya jika user menekan OK
+    const response = await apiClient.post(`admin/users/${user.id}/${action}`);
+    console.log("Response:", response.data);
+
+    // update status di UI
+    user.is_active = action === "activate";
+
+    alert("Status user berhasil diperbarui!");
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Gagal memperbarui status user");
+  } finally {
+    loading.value = false;
+  }
+};
 
 // ==================
 // UI LOGIC
@@ -82,8 +166,9 @@ onMounted(() => {
 
       <!-- Table -->
       <div
-        class="bg-white shadow-sm rounded-lg border border-slate-200 overflow-hidden"
+        class="bg-white shadow-sm rounded-lg border border-slate-200 overflow-hidden lg:w-[calc(100dvw-310px)]"
       >
+        <!-- w-[calc(dvw-300px)] -->
         <div class="bg-slate-600 px-6 py-4 border-b border-slate-500">
           <h3 class="text-lg font-semibold text-white flex items-center gap-2">
             <UserCog class="w-5 h-5" />
@@ -125,8 +210,192 @@ onMounted(() => {
           </div>
 
           <!-- Table -->
-          <div v-else class="overflow-x-auto">
-            <table class="w-full">
+          <div v-else class="w-full overflow-x-auto">
+            <table v-if="selectedRole === 'dosen'" class="min-w-max w-full">
+              <thead>
+                <tr class="bg-slate-50 border-y border-slate-200">
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase"
+                  >
+                    No
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase"
+                  >
+                    Nama Lengkap
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase"
+                  >
+                    Nomor Induk
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase"
+                  >
+                    Jabatan
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase"
+                  >
+                    Fakultas
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase"
+                  >
+                    Email
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase"
+                  >
+                    No HP
+                  </th>
+                  <th
+                    class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase"
+                  >
+                    Status Aktif
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase"
+                  >
+                    Terakhir Login
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                <tr
+                  v-for="(user, index) in users"
+                  :key="user.nomor_induk"
+                  class="hover:bg-slate-50 transition-colors"
+                >
+                  <td class="px-4 py-4 font-semibold text-slate-900">
+                    {{ index + 1 }}
+                  </td>
+                  <td class="px-4 py-4 text-slate-800">
+                    {{ user.nama_lengkap }}
+                  </td>
+                  <td class="px-4 py-4 text-slate-700">
+                    {{ user.nomor_induk }}
+                  </td>
+                  <td class="px-4 py-4 text-slate-700">{{ user.jabatan }}</td>
+                  <td class="px-4 py-4 text-slate-700">
+                    {{ user.nama_fakultas }}
+                  </td>
+                  <td class="px-4 py-4 text-slate-700">{{ user.email }}</td>
+                  <td class="px-4 py-4 text-slate-700">{{ user.no_hp }}</td>
+                  <td class="px-4 py-4 text-center">
+                    <span
+                      class="text-xs font-semibold px-3 py-1.5 rounded-md"
+                      :class="{
+                        'bg-green-100 text-green-700': user.is_active,
+                        'bg-rose-100 text-rose-600': !user.is_active,
+                      }"
+                    >
+                      {{ user.is_active ? "Aktif" : "Nonaktif" }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 text-sm">
+                    {{ formatDate(user.last_login) }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <table
+              v-else-if="selectedRole === 'mahasiswa'"
+              class="min-w-max w-full"
+            >
+              <thead>
+                <tr class="bg-slate-50 border-y border-slate-200">
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase"
+                  >
+                    No
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase"
+                  >
+                    Nama Lengkap
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase"
+                  >
+                    Nomor Induk
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase"
+                  >
+                    Email
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase"
+                  >
+                    No HP
+                  </th>
+                  <th
+                    class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase"
+                  >
+                    Nama Program Studi
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase"
+                  >
+                    Semester
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase"
+                  >
+                    Status Aktif
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase"
+                  >
+                    Terakhir Login
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                <tr
+                  v-for="(user, index) in users"
+                  :key="user.nomor_induk"
+                  class="hover:bg-slate-50 transition-colors"
+                >
+                  <td class="px-4 py-4 font-semibold text-slate-900">
+                    {{ index + 1 }}
+                  </td>
+                  <td class="px-4 py-4 text-slate-800">
+                    {{ user.nama }}
+                  </td>
+                  <td class="px-4 py-4 text-slate-700">
+                    {{ user.nomor_induk }}
+                  </td>
+                  <td class="px-4 py-4 text-slate-700">{{ user.email }}</td>
+                  <td class="px-4 py-4 text-slate-700">
+                    {{ user.no_hp }}
+                  </td>
+                  <td class="px-4 py-4 text-slate-700">
+                    {{ user.nama_prodi }}
+                  </td>
+                  <td class="px-4 py-4 text-slate-700">{{ user.semester }}</td>
+                  <td class="px-4 py-4 text-center">
+                    <span
+                      class="text-xs font-semibold px-3 py-1.5 rounded-md"
+                      :class="{
+                        'bg-green-100 text-green-700': user.is_active,
+                        'bg-rose-100 text-rose-600': !user.is_active,
+                      }"
+                    >
+                      {{ user.is_active ? "Aktif" : "Nonaktif" }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 text-slate-600 text-sm">
+                    {{ formatDate(user.last_login) }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table v-else class="w-full">
+              <!-- TABLE ADMIN -->
+
               <thead>
                 <tr class="bg-slate-50 border-y border-slate-200">
                   <th
@@ -154,6 +423,11 @@ onMounted(() => {
                   >
                     Status
                   </th>
+                  <th
+                    class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase"
+                  >
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-200">
@@ -171,7 +445,7 @@ onMounted(() => {
                       :class="{
                         'bg-slate-200 text-slate-700': user.role === 'admin',
                         'bg-blue-100 text-blue-700': user.role === 'dosen',
-                        'bg-green-100 text-green-700':
+                        'bg-violet-100 text-violet-700':
                           user.role === 'mahasiswa',
                       }"
                     >
@@ -182,12 +456,29 @@ onMounted(() => {
                     <span
                       class="text-xs font-semibold px-3 py-1.5 rounded-md"
                       :class="{
-                        'bg-green-100 text-green-700': user.active,
-                        'bg-rose-100 text-rose-600': !user.active,
+                        'bg-green-100 text-green-700': user.is_active,
+                        'bg-rose-100 text-rose-600': !user.is_active,
                       }"
                     >
-                      {{ user.active ? "Aktif" : "Nonaktif" }}
+                      {{ user.is_active ? "Aktif" : "Nonaktif" }}
                     </span>
+                  </td>
+
+                  <td v-if="user.role !== 'admin'" class="text-center">
+                    <button
+                      v-if="user.is_active"
+                      @click="toggleStatus(user, 'deactivate')"
+                      class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 transition-all duration-200 shadow-sm"
+                    >
+                      <XCircle class="w-4 h-4" /> Nonaktifkan
+                    </button>
+                    <button
+                      v-else
+                      @click="toggleStatus(user, 'activate')"
+                      class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-green-600 bg-green-50 border border-green-200 hover:bg-green-100 transition-all duration-200 shadow-sm"
+                    >
+                      <CheckCircle class="w-4 h-4" /> Aktifkan
+                    </button>
                   </td>
                 </tr>
               </tbody>

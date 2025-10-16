@@ -231,8 +231,18 @@ onMounted(async () => {
         </div>
 
         <div class="p-6">
+          <div v-if="selectedStatus === 'total'" class="text-center py-12">
+            <div
+              class="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-full mb-4"
+            >
+              <FileText class="w-8 h-8 text-slate-400" />
+            </div>
+            <p class="text-slate-600 font-medium">
+              Tidak ada tabel untuk status Total Permohonan
+            </p>
+          </div>
           <!-- Loading State -->
-          <div v-if="loading" class="text-center py-12">
+          <div v-else-if="loading" class="text-center py-12">
             <div
               class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600"
             ></div>
@@ -262,7 +272,7 @@ onMounted(async () => {
           </div>
 
           <!-- Table Content -->
-          <div v-else class="overflow-x-auto">
+          <div v-else class="overflow-x-auto w-full">
             <table class="w-full">
               <thead>
                 <tr class="bg-gray-50 border-y border-gray-200">

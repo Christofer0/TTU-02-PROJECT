@@ -36,3 +36,15 @@ class User(BaseModel):
     @property
     def is_mahasiswa(self):
         return self.role == 'mahasiswa'
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "nomor_induk": self.nomor_induk,
+            "nama": self.nama,
+            "email": self.email,
+            "role": self.role,
+            "is_active": self.is_active,
+            "no_hp": self.no_hp,
+            "last_login": self.last_login.isoformat() if self.last_login else None
+        }
