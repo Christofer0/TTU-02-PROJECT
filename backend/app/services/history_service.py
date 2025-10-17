@@ -17,6 +17,12 @@ class HistoryService:
         elif role == "admin":
             history = self.repo_permohonan.get_by_status(status)
         return history
+    
+    def get_all_permohonan_by_dosen(self,user_id:str):
+        """Get history of permohonan for a mahasiswa by status"""
+        all_history = self.repo_permohonan.get_all_by_dosen(user_id)
+
+        return all_history
 
     def get_all_counts_off_permohonan(self):
         """Get counts of ALL permohonan grouped mahasiswa"""

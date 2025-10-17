@@ -74,3 +74,19 @@ class Permohonan(BaseModel):
     @property
     def is_completed(self):
         return self.status_permohonan == 'selesai'
+
+    def to_dict(self):
+        """Ubah objek SQLAlchemy menjadi dict JSON-friendly"""
+        return {
+            "id": self.id,
+            "judul": self.judul,
+            "status_permohonan": self.status_permohonan,
+            "id_dosen": self.id_dosen,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "dosen": {
+                "user_id": getattr(self.dosen, "user_id", None),
+                "nama": getattr(self.dosen.user, "nama", None)
+                if getattr(self.dosen, "user", None)
+                else None,
+            } if self.dosen else None,
+        }

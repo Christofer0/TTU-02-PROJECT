@@ -86,39 +86,13 @@
         </span>
       </RouterLink>
 
-      <!-- <RouterLink
-        to="/dosen/change-password"
-        class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-all duration-200"
-        active-class="bg-gradient-to-r from-amber-50 to-amber-100 text-amber-700 shadow-sm border-l-4 border-amber-500"
-      >
-        <div
-          class="w-8 h-8 bg-gradient-to-br from-amber-400 to-amber-500 rounded-lg flex items-center justify-center shadow-sm"
-        >
-          <svg
-            class="w-4 h-4 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-            />
-          </svg>
-        </div>
-        <span class="font-medium text-gray-700 group-hover:text-gray-900">
-          Ganti Password
-        </span>
-      </RouterLink> -->
       <RouterLink
         to="/dosen/history"
         class="group flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-all duration-200 hover:scale-[1.02]"
-        active-class="bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 shadow-sm border-l-4 border-blue-500"
+        active-class="bg-gradient-to-r from-indigo-50 to-indigo-100 text-indigo-700 shadow-sm border-l-4 border-indigo-500"
       >
         <div
-          class="w-8 h-8 bg-gradient-to-br from-slate-400 to-slate-500 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow"
+          class="w-8 h-8 bg-gradient-to-br from-indigo-400 to-indigo-500 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow"
         >
           <svg
             class="w-4 h-4 text-white"

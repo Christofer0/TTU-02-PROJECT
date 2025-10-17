@@ -77,8 +77,8 @@ def statistic_dosen():
     }
     """
     try:
-        is_admin,current_user,role= check_role_dosen()
-        if not is_admin:
+        is_dosen,current_user,role= check_role_dosen()
+        if not is_dosen:
             return error_response("error you are not dosen",status_code=401)
         
         counts = history_service.get_all_counts_off_permohonan()
@@ -91,3 +91,25 @@ def statistic_dosen():
     except Exception as e:
         return error_response("Failed to get counts", str(e), 500)
 
+
+@dosen_bp.route("/recent-history", methods=['GET'])
+@jwt_required()
+def recent_history_dosen():
+
+    try:
+
+        is_dosen,current_user,role= check_role_dosen()
+        if not is_dosen:
+            return error_response("error you are not dosen",status_code=401)
+        
+        id_dosen = current_user.id
+        
+        recenHistory = history_service.get_all_permohonan_by_dosen(id_dosen)
+        
+        if recenHistory is None:
+            return error_response("No History found",status_code=403)
+        
+        return success_response("History recenHistory retrieved", recenHistory)
+        
+    except Exception as e:
+        return error_response("Failed to get history", str(e), 500)

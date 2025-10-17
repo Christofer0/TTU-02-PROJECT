@@ -38,6 +38,17 @@ class PermohonanRepository(BaseRepository):
             query = query.filter_by(status_permohonan=status)
         return query.order_by(Permohonan.created_at.desc()).all()
     
+    def get_all_by_dosen(self, dosen_id: str) -> List[Permohonan]:
+        """Ambil semua permohonan berdasarkan ID dosen"""
+        result = (
+        self.session.query(Permohonan)
+        .filter(Permohonan.id_dosen == dosen_id)
+        .order_by(Permohonan.created_at.desc())
+        .all()
+    )
+        # ubah semua hasil ke dict
+        return [r.to_dict() for r in result]
+    
     def get_by_status(self, status: str) -> List[Permohonan]:
         """Get permohonan by status"""
         return self.session.query(Permohonan)\
