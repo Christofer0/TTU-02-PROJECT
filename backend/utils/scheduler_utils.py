@@ -24,6 +24,10 @@ def send_weekly_pending_notifications():
     )
 
     for id_dosen, jumlah_pending in pending_counts:
+        # jika count 0 maka skip
+        if not jumlah_pending or jumlah_pending == 0:
+            print("Tidak ada status pending !!")
+            continue
         # Ambil user dari tabel User berdasarkan id_dosen
         dosen_user = User.query.filter_by(id=id_dosen).first()
         if not dosen_user or not dosen_user.email:
