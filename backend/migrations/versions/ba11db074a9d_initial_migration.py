@@ -1,8 +1,8 @@
-"""first insert
+"""Initial migration
 
-Revision ID: 2edbc929fb9a
+Revision ID: ba11db074a9d
 Revises: 
-Create Date: 2025-10-07 22:31:41.042564
+Create Date: 2025-11-05 11:14:17.368343
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '2edbc929fb9a'
+revision = 'ba11db074a9d'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -50,6 +50,41 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
     sa.UniqueConstraint('nomor_induk')
+    )
+    op.create_table('v_dosen',
+    sa.Column('user_id', sa.String(length=36), nullable=False),
+    sa.Column('nomor_induk', sa.String(length=20), nullable=True),
+    sa.Column('nama', sa.String(length=100), nullable=True),
+    sa.Column('email', sa.String(length=100), nullable=True),
+    sa.Column('no_hp', sa.String(length=15), nullable=True),
+    sa.Column('is_active', sa.Boolean(), nullable=True),
+    sa.Column('gelar_depan', sa.String(length=255), nullable=True),
+    sa.Column('gelar_belakang', sa.String(length=255), nullable=True),
+    sa.Column('nama_lengkap', sa.String(length=255), nullable=True),
+    sa.Column('jabatan', sa.String(length=100), nullable=True),
+    sa.Column('fakultas_id', sa.Integer(), nullable=True),
+    sa.Column('nama_fakultas', sa.String(length=100), nullable=True),
+    sa.Column('ttd_path', sa.String(length=255), nullable=True),
+    sa.Column('signature_upload_at', sa.DateTime(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('last_login', sa.DateTime(), nullable=True),
+    sa.PrimaryKeyConstraint('user_id')
+    )
+    op.create_table('v_mahasiswa',
+    sa.Column('user_id', sa.String(length=36), nullable=False),
+    sa.Column('nomor_induk', sa.String(length=20), nullable=True),
+    sa.Column('nama', sa.String(length=100), nullable=True),
+    sa.Column('email', sa.String(length=100), nullable=True),
+    sa.Column('no_hp', sa.String(length=15), nullable=True),
+    sa.Column('is_active', sa.Boolean(), nullable=True),
+    sa.Column('semester', sa.Integer(), nullable=True),
+    sa.Column('fakultas_id', sa.Integer(), nullable=True),
+    sa.Column('nama_fakultas', sa.String(length=100), nullable=True),
+    sa.Column('program_studi_id', sa.Integer(), nullable=True),
+    sa.Column('nama_prodi', sa.String(length=100), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('last_login', sa.DateTime(), nullable=True),
+    sa.PrimaryKeyConstraint('user_id')
     )
     op.create_table('dosen',
     sa.Column('user_id', sa.String(length=36), nullable=False),
@@ -151,6 +186,8 @@ def downgrade():
     op.drop_table('mahasiswa')
     op.drop_table('program_studi')
     op.drop_table('dosen')
+    op.drop_table('v_mahasiswa')
+    op.drop_table('v_dosen')
     op.drop_table('users')
     op.drop_table('jenis_permohonan')
     op.drop_table('fakultas')

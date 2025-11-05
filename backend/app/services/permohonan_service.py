@@ -41,7 +41,7 @@ class PermohonanService(BaseService):
             db.session.commit()
             
             # Send notification to dosen
-            notify_permohonan_created(permohonan)
+            # notify_permohonan_created(permohonan)
             
             return permohonan, None
             
@@ -114,6 +114,25 @@ class PermohonanService(BaseService):
 
             # Send notification to mahasiswa
             # notify_permohonan_rejected(permohonan)
+
+            # Ambil user mahasiswa dari permohonan
+            from app.models.user_model import User
+            mahasiswa_user = db.session.query(User).filter_by(id=permohonan.id_mahasiswa).first()
+
+            # Ambil user dosen dari user_id
+            dosen_user = db.session.query(User).filter_by(id=dosen_id).first()
+
+            from utils.email_utils import send_permohonan_email
+
+            status, err = send_permohonan_email(
+                mahasiswa_user.email,
+                mahasiswa_user.nama,
+                dosen_user.nama,
+                "ditolak",
+                komentar_penolakan
+            )
+            if not status:
+                print("Email send error:", err)
             
             return permohonan, None
             
@@ -197,7 +216,23 @@ class PermohonanService(BaseService):
 
             # Send notification
             # notify_permohonan_signed(permohonan)
-            
+
+            from app.models.user_model import User
+            from utils.email_utils import send_permohonan_email
+
+            mahasiswa_user = db.session.query(User).filter_by(id=permohonan.id_mahasiswa).first()
+            dosen_user = db.session.query(User).filter_by(id=dosen_id).first()
+
+            status, err = send_permohonan_email(
+                mahasiswa_user.email,
+                mahasiswa_user.nama,
+                dosen_user.nama,
+                "ditandatangani",
+                None
+            )
+            if not status:
+                print("Email send error:", err)
+      
             return permohonan, None
             
         except Exception as e:

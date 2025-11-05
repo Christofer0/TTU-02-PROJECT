@@ -18,7 +18,7 @@
 ### 4. Insert First Data
 
         # 1. First insert database the database (run once)
-        # flask db revision -m "Insert Fist Data"
+        # flask db revision -m "Insert First Data"
         # setelah muncul file di migrations masukkan
                 def upgrade():
                     op.execute("""
@@ -27,8 +27,8 @@
                     """)
 
                     op.execute("""
-                        INSERT INTO program_studi (nama_prodi, fakultas_id, created_at, updated_at)
-                        VALUES ('Teknik Informatika',
+                        INSERT INTO program_studi (id,nama_prodi, fakultas_id, created_at, updated_at)
+                        VALUES (67,'Teknik Informatika',
                         (SELECT id FROM fakultas WHERE nama_fakultas = 'Fakultas Teknologi Informasi'),
                         NOW(), NOW())
                     """)
@@ -98,77 +98,6 @@
                 CREATE TRIGGER update_permohonan_updated_at BEFORE UPDATE ON permohonan
                     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-                -- =========================
-                -- VIEWS
-                -- =========================
-
-                -- VIEW Mahasiswa
-                CREATE VIEW v_mahasiswa AS
-                SELECT
-                    u.id as user_id,
-                    u.nomor_induk,
-                    u.nama,
-                    u.email,
-                    u.no_hp,
-                    u.is_active,
-                    m.semester,
-                    f.id as fakultas_id,
-                    f.nama_fakultas,
-                    ps.id as program_studi_id,
-                    ps.nama_prodi,
-                    u.created_at,
-                    u.last_login
-                FROM users u
-                JOIN mahasiswa m ON u.id = m.user_id
-                JOIN fakultas f ON m.fakultas_id = f.id
-                JOIN program_studi ps ON m.program_studi_id = ps.id
-                WHERE u.role = 'mahasiswa';
-
-                -- VIEW Dosen
-                CREATE VIEW v_dosen AS
-                SELECT
-                    u.id as user_id,
-                    u.nomor_induk,
-                    u.nama,
-                    u.email,
-                    u.no_hp,
-                    u.is_active,
-                    d.gelar_depan,
-                    d.gelar_belakang,
-                    CASE
-                        WHEN d.gelar_depan IS NOT NULL AND d.gelar_belakang IS NOT NULL THEN
-                            CONCAT(d.gelar_depan, ' ', u.nama, ' ', d.gelar_belakang)
-                        WHEN d.gelar_depan IS NOT NULL THEN
-                            CONCAT(d.gelar_depan, ' ', u.nama)
-                        WHEN d.gelar_belakang IS NOT NULL THEN
-                            CONCAT(u.nama, ' ', d.gelar_belakang)
-                        ELSE u.nama
-                    END as nama_lengkap,
-                    d.jabatan,
-                    f.id as fakultas_id,
-                    f.nama_fakultas,
-                    d.ttd_path,
-                    d.signature_upload_at,
-                    u.created_at,
-                    u.last_login
-                FROM users u
-                JOIN dosen d ON u.id = d.user_id
-                LEFT JOIN fakultas f ON d.fakultas_id = f.id
-                WHERE u.role = 'dosen';
-
-                -- VIEW Admin
-                CREATE VIEW v_admin AS
-                SELECT
-                    u.id as user_id,
-                    u.nomor_induk,
-                    u.nama,
-                    u.email,
-                    u.no_hp,
-                    u.is_active,
-                    u.created_at,
-                    u.last_login
-                FROM users u
-                WHERE u.role = 'admin';
             """
             )
 
