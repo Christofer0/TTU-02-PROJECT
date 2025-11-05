@@ -28,6 +28,8 @@ def init_extensions(app):
         allow_headers=["Content-Type", "Authorization"],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     )
+    from utils.scheduler_utils import start_scheduler
+    start_scheduler(app)
 
 
         
