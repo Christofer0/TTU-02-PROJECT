@@ -282,7 +282,13 @@ async function loadRecentHistory() {
 }
 
 function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleString("id-ID", {
+  if (!dateStr) return "-";
+
+  // Pastikan string waktu diperlakukan sebagai UTC
+  const utcDateString = dateStr.endsWith("Z") ? dateStr : dateStr + "Z";
+  const date = new Date(utcDateString);
+
+  return date.toLocaleString("id-ID", {
     day: "numeric",
     month: "long",
     year: "numeric",

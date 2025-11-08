@@ -395,15 +395,15 @@ const formatDate = (dateString: string) => {
   const utcDateString = dateString.endsWith("Z")
     ? dateString
     : dateString + "Z";
+
   const date = new Date(utcDateString);
 
-  return date.toLocaleString("en-US", {
+  return date.toLocaleString("id-ID", {
     year: "numeric",
     month: "long",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: "UTC",
   });
 };
 

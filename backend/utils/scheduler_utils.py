@@ -12,44 +12,36 @@ scheduler = BackgroundScheduler(timezone=pytz.timezone("Asia/Jakarta"))
 
 
 def send_weekly_pending_notifications():
-    """Job: kirim email ke dosen setiap Senin jam 09:00 WIB"""
-    print(f"[{datetime.now()}] Menjalankan job weekly pending notification...")
 
-    # Ambil jumlah permohonan pending per dosen
-    pending_counts = (
-        db.session.query(Permohonan.id_dosen, db.func.count(Permohonan.id))
-        .filter(Permohonan.status_permohonan == 'pending')
-        .group_by(Permohonan.id_dosen)
-        .all()
-    )
+    # Ambil semua dosen
+    dosen_list = User.query.filter_by(role="dosen").all()
 
-    for id_dosen, jumlah_pending in pending_counts:
-        # jika count 0 maka skip
-        if not jumlah_pending or jumlah_pending == 0:
-            print("Tidak ada status pending !!")
+    for dosen in dosen_list:
+        if not dosen.email:
             continue
-        # Ambil user dari tabel User berdasarkan id_dosen
-        dosen_user = User.query.filter_by(id=id_dosen).first()
-        if not dosen_user or not dosen_user.email:
-            print(f"[WARNING] Dosen dengan ID {id_dosen} tidak punya email, dilewati.")
-            continue
+        
+        # Hitung pending milik dosen
+        jumlah_pending = (
+            Permohonan.query
+            .filter_by(id_dosen=dosen.id, status_permohonan="pending")
+            .count()
+        )
 
-        recipient_email = dosen_user.email
-        subject = "Pengingat Permohonan Berstatus Pending"
+        if jumlah_pending == 0:
+            continue  
+
+        subject = f"Pengingat Permohonan Pending - {datetime.now().strftime('%d %b %Y')}"
         body = (
-            f"Halo {dosen_user.nama},\n\n"
-            f"Anda memiliki {jumlah_pending} permohonan yang masih berstatus pending.\n"
-            "Mohon segera ditinjau di sistem pengajuan.\n\n"
-            "Salam,\nFTI-Service"
+            f"Halo {dosen.nama},\n\n"
+            f"Ada {jumlah_pending} permohonan pending.\n"
+            "Mohon ditinjau.\n\nSalam,\nFTI-Service"
         )
 
         try:
-            msg = Message(subject=subject, recipients=[recipient_email], body=body)
+            msg = Message(subject, recipients=[dosen.email], body=body)
             mail.send(msg)
-            print(f"[INFO] Email dikirim ke {recipient_email}")
         except Exception as e:
-            print(f"[ERROR] Gagal kirim email ke {recipient_email}: {e}")
-
+            print(f"[ERROR] gagal kirim email {dosen.email}: {e}")
     
 
 
@@ -64,7 +56,7 @@ def start_scheduler(app):
     scheduler.add_job(
         func=job_wrapper,
         trigger='cron',
-        day_of_week='mon',  # Senin
+        day_of_week='mon',  
         hour=9,             # Jam 09:00 WIB
         minute=00,
         timezone=pytz.timezone("Asia/Jakarta")

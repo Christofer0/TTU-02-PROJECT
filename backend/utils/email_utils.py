@@ -13,9 +13,9 @@ def send_permohonan_email(mahasiswa_email, mahasiswa_nama, dosen_nama, status_pe
         # Ambil app context bener2 (wajib utk threading)
         app = current_app._get_current_object()
 
-        now = datetime.utcnow()
+        now = datetime.now()
 
-        subject = f"Status Permohonan Anda {status_permohonan.capitalize()}"
+        subject = f"Status Permohonan Anda {status_permohonan.capitalize()} - {datetime.now().strftime('%d %b %Y')}"
 
         if status_permohonan.lower() == "ditandatangani":
             body = (
