@@ -66,7 +66,26 @@
         2. pendaftar ke 2 bisa dosen / mahasiswa. tergantung. jika menggunakan email student maka role = mahasiswa jika email biasa menjadi dosen()
         3. bisa dicoba aplikasinya.
 
-### 6. Create View
+### 6. Drop tabel v_mahasiswa & v_dosen
+
+        # 1. create view to database (run once)
+            # flask db revision -m "create triggers view for users"
+            # setelah muncul file di migrations baru, masukkan:
+
+        def upgrade():
+            op.execute("""
+                DROP TABLE IF EXISTS v_dosen;
+                DROP VIEW IF EXISTS v_dosen;
+                DROP TABLE IF EXISTS v_mahasiswa;
+                DROP VIEW IF EXISTS v_mahasiswa;
+            """)
+
+        def downgrade():
+            pass
+
+        #jangan lupa "flask db upgrade"
+
+### 7. Create View & Triggers
 
         # 1. create view to database (run once)
         # flask db revision -m "create triggers view for users"
@@ -75,6 +94,60 @@
         def upgrade():
             op.execute (
             """
+                -- VIEW Mahasiswa
+                CREATE VIEW v_mahasiswa AS
+                SELECT
+                    u.id as user_id,
+                    u.nomor_induk,
+                    u.nama,
+                    u.email,
+                    u.no_hp,
+                    u.is_active,
+                    m.semester,
+                    f.id as fakultas_id,
+                    f.nama_fakultas,
+                    ps.id as program_studi_id,
+                    ps.nama_prodi,
+                    u.created_at,
+                    u.last_login
+                FROM users u
+                JOIN mahasiswa m ON u.id = m.user_id
+                JOIN fakultas f ON m.fakultas_id = f.id
+                JOIN program_studi ps ON m.program_studi_id = ps.id
+                WHERE u.role = 'mahasiswa';
+
+                --VIEW Dosen
+                CREATE VIEW v_dosen AS
+                SELECT
+                    u.id as user_id,
+                    u.nomor_induk,
+                    u.nama,
+                    u.email,
+                    u.no_hp,
+                    u.is_active,
+                    d.gelar_depan,
+                    d.gelar_belakang,
+                    CASE
+                        WHEN d.gelar_depan IS NOT NULL AND d.gelar_belakang IS NOT NULL THEN
+                            CONCAT(d.gelar_depan, ' ', u.nama, ' ', d.gelar_belakang)
+                        WHEN d.gelar_depan IS NOT NULL THEN
+                            CONCAT(d.gelar_depan, ' ', u.nama)
+                        WHEN d.gelar_belakang IS NOT NULL THEN
+                            CONCAT(u.nama, ' ', d.gelar_belakang)
+                        ELSE u.nama
+                    END as nama_lengkap,
+                    d.jabatan,
+                    f.id as fakultas_id,
+                    f.nama_fakultas,
+                    d.ttd_path,
+                    d.signature_upload_at,
+                    u.created_at,
+                    u.last_login
+                FROM users u
+                JOIN dosen d ON u.id = d.user_id
+                LEFT JOIN fakultas f ON d.fakultas_id = f.id
+                WHERE u.role = 'dosen';
+
                 -- =========================
                 -- TRIGGERS untuk updated_at
                 -- =========================
@@ -104,6 +177,6 @@
         def downgrade():
             op.execute("DROP VIEW IF EXISTS v_mahasiswa CASCADE;")
             op.execute("DROP VIEW IF EXISTS v_dosen CASCADE;")
-            op.execute("DROP VIEW IF EXISTS v_admin CASCADE;")
+            #op.execute("DROP VIEW IF EXISTS v_admin CASCADE;")
 
         kembali ke cmd lalu masukkan flask db upgrade
