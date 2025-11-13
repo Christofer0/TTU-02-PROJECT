@@ -157,6 +157,7 @@
 import { ref, onMounted } from "vue";
 import { getJenisPermohonan } from "@/services/jenisPermohonanService";
 import { apiClient } from "@/lib/axios";
+import Swal from "sweetalert2";
 
 export default {
   name: "PermohonanListPermohonanTTD",
@@ -199,10 +200,19 @@ export default {
       window.location.href = `/dosen/permohonan/${id}`;
     };
 
-    // FUNGSI BARU: Tandatangani permohonan
     const signPermohonan = async (id: string) => {
-      if (!confirm("Apakah Anda yakin ingin menandatangani permohonan ini?"))
-        return;
+      const result = await Swal.fire({
+        title: "Tandatangani Permohonan?",
+        text: "Apakah Anda yakin ingin menandatangani permohonan ini?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Ya, Tandatangani",
+        cancelButtonText: "Batal",
+        confirmButtonColor: "#10b981", // hijau teal
+        cancelButtonColor: "#d33",
+      });
+
+      if (!result.isConfirmed) return;
 
       signingPermohonan.value = id;
 
@@ -210,31 +220,68 @@ export default {
         const response = await apiClient.post(`/permohonan/${id}/sign`);
 
         if (response.data.success) {
-          alert("✅ Permohonan berhasil ditandatangani!");
-          await fetchPermohonan(); // Refresh data
+          await Swal.fire({
+            title: "Berhasil!",
+            text: "Permohonan berhasil ditandatangani ✅",
+            icon: "success",
+            confirmButtonColor: "#3b82f6",
+          });
+          await fetchPermohonan();
         }
       } catch (error: any) {
         console.error("Gagal menandatangani permohonan:", error);
         const errorMsg =
-          error.response?.data?.message || "Gagal menandatangani permohonan";
-        alert(`❌ ${errorMsg}`);
+          error.response?.data?.message ||
+          "Terjadi kesalahan saat menandatangani.";
+        Swal.fire({
+          title: "Gagal",
+          text: errorMsg,
+          icon: "error",
+          confirmButtonColor: "#ef4444",
+        });
       } finally {
         signingPermohonan.value = null;
       }
     };
 
     const rejectPermohonan = async (id: string) => {
-      const komentar = prompt("Masukkan komentar penolakan:");
-      if (!komentar) return;
+      const { value: komentar, isConfirmed } = await Swal.fire({
+        title: "Tolak Permohonan",
+        input: "textarea",
+        inputLabel: "Masukkan alasan penolakan:",
+        inputPlaceholder: "Tuliskan alasan di sini...",
+        showCancelButton: true,
+        confirmButtonText: "Tolak Permohonan",
+        cancelButtonText: "Batal",
+        confirmButtonColor: "#ef4444",
+        inputValidator: (value) => {
+          if (!value) {
+            return "Komentar penolakan wajib diisi!";
+          }
+        },
+      });
+
+      if (!isConfirmed || !komentar) return;
+
       try {
         await apiClient.post(`/permohonan/${id}/reject`, {
           komentar_penolakan: komentar,
         });
-        alert("✅ Permohonan berhasil ditolak");
+        await Swal.fire({
+          title: "Ditolak",
+          text: "Permohonan berhasil ditolak ❌",
+          icon: "success",
+          confirmButtonColor: "#3b82f6",
+        });
         fetchPermohonan();
       } catch (error) {
         console.error("Gagal menolak permohonan:", error);
-        alert("❌ Gagal menolak permohonan");
+        Swal.fire({
+          title: "Gagal",
+          text: "Terjadi kesalahan saat menolak permohonan.",
+          icon: "error",
+          confirmButtonColor: "#ef4444",
+        });
       }
     };
 

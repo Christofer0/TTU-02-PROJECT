@@ -51,7 +51,7 @@
                   type="file"
                   @change="handleFileChange"
                   class="hidden"
-                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                  accept=".pdf"
                 />
 
                 <div
