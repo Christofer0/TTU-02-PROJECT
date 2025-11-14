@@ -56,7 +56,7 @@ def start_scheduler(app):
     scheduler.add_job(
         func=job_wrapper,
         trigger='cron',
-        day_of_week='mon',  
+        day_of_week='*',  
         hour=9,             # Jam 09:00 WIB
         minute=00,
         timezone=pytz.timezone("Asia/Jakarta")
