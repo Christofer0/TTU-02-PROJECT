@@ -227,6 +227,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Swal from "sweetalert2";
 
 const authStore = useAuthStore();
 
@@ -289,14 +290,25 @@ const handleSubmit = async () => {
         no_hp: response.data.no_hp ?? "",
       };
       originalForm.value = { ...form.value };
-
-      alert("✅ Profil berhasil diperbarui!");
+      await Swal.fire({
+        title: "Berhasil",
+        text: "Profil berhasil diperbaharui",
+        icon: "success",
+      });
     } else {
-      alert("❌ Gagal memperbarui profil: " + response.message);
+      await Swal.fire({
+        title: "Gagal",
+        text: "Gagal memperbaharui profil",
+        icon: "error",
+      });
     }
   } catch (error) {
     console.error(error);
-    alert("❌ Terjadi kesalahan saat memperbarui profil.");
+    await Swal.fire({
+      title: "Gagal",
+      text: "Terjadi kesalahan saat memperbarui profil",
+      icon: "error",
+    });
   } finally {
     loading.value = false;
   }

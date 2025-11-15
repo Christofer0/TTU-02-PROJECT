@@ -169,6 +169,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/axios";
 import SignatureCreator from "@/components/dosen/SignatureCreator.vue";
+import Swal from "sweetalert2";
 const showSignatureCreator = ref(false);
 
 const auth = useAuthStore();
@@ -182,7 +183,12 @@ const signatureFinalBlob = ref<Blob | null>(null);
 // Submit upload signature
 const submitTTD = async () => {
   if (!signatureFinalBlob.value) {
-    alert("Silakan pilih file TTD terlebih dahulu!");
+    Swal.fire({
+      title: "Oops",
+      text: "Silakan pilih file TTD terlebih dahulu!",
+      icon: "warning",
+      confirmButtonColor: "#FF9459",
+    });
     return;
   }
 
@@ -207,9 +213,20 @@ const submitTTD = async () => {
     auth.setDosen(res.data.data);
     signatureFinalBlob.value = null;
 
-    alert("TTD berhasil diperbarui!");
+    await Swal.fire({
+      title: "Berhasil",
+      text: "TTD berhasil diperbaharui",
+      icon: "success",
+      confirmButtonColor: "#3b82f6",
+    });
   } catch (err) {
     console.error(err);
+    await Swal.fire({
+      title: "Gagal",
+      text: "Terjadi kesalah saat upload TTD",
+      icon: "error",
+      confirmButtonColor: "#ef4444",
+    });
     alert("Terjadi kesalahan saat upload TTD");
   }
 };

@@ -14,6 +14,7 @@ const selectedRole = ref("semua");
 const roles = ref(["semua", "dosen", "mahasiswa"]);
 const loading = ref(false);
 const error = ref<string | null>(null);
+import Swal from "sweetalert2";
 
 const formatDate = (dateString: string) => {
   if (!dateString) return "-";
@@ -98,8 +99,16 @@ const toggleStatus = async (user: User, action: "activate" | "deactivate") => {
         : `Yakin ingin deactivate ${user.role} dengan NIM ${user.nomor_induk}?`;
 
     // tampilkan konfirmasi dan hentikan jika dibatalkan
-    const confirmed = confirm(message);
-    if (!confirmed) {
+    const result = await Swal.fire({
+      title: "Konfirmasi",
+      html: message,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Ya, lanjutkan",
+      cancelButtonText: "Batal",
+    });
+
+    if (!result.isConfirmed) {
       loading.value = false;
       return; // <-- langsung berhenti di sini kalau user cancel
     }
@@ -111,10 +120,18 @@ const toggleStatus = async (user: User, action: "activate" | "deactivate") => {
     // update status di UI
     user.is_active = action === "activate";
 
-    alert("Status user berhasil diperbarui!");
+    Swal.fire({
+      title: "Berhasil",
+      text: "Status user berhasil diperbaharui",
+      icon: "success",
+    });
   } catch (error) {
     console.error("Error:", error);
-    alert("Gagal memperbarui status user");
+    Swal.fire({
+      title: "Gagal",
+      text: "Gagal memperbaharui status user",
+      icon: "error",
+    });
   } finally {
     loading.value = false;
   }
