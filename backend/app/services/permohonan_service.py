@@ -1,4 +1,3 @@
-# services/permohonan_service.py
 import os
 from datetime import datetime
 from .base_service import BaseService
@@ -322,4 +321,184 @@ class PermohonanService(BaseService):
         """Get permohonan untuk halaman dosen"""
         return self.permohonan_repo.get_by_dosen_with_filter(dosen_id, status, jenis_id)
     
-    
+
+
+    # app/services/permohonan_service.py
+    def batch_sign_permohonan(self, permohonan_ids: list, dosen_id: str):
+        """Batch sign multiple permohonan dengan efficient processing"""
+        results = {
+            'success': [],
+            'failed': [],
+            'total': len(permohonan_ids)
+        }
+        
+        try:
+            # Get dosen data once (optimization)
+            from app.models.dosen_model import Dosen
+            dosen = db.session.query(Dosen).filter_by(user_id=dosen_id).first()
+            if not dosen or not dosen.ttd_path:
+                return None, "Dosen signature not found"
+            
+            # Collect emails for batch notification
+            emails_to_send = {}
+            
+            # Process each permohonan
+            for permohonan_id in permohonan_ids:
+                try:
+                    permohonan = self.permohonan_repo.get_by_id(permohonan_id)
+                    
+                    # Validasi
+                    if not permohonan:
+                        results['failed'].append({
+                            'id': permohonan_id,
+                            'reason': 'Permohonan not found'
+                        })
+                        continue
+                    
+                    if permohonan.id_dosen != dosen_id:
+                        results['failed'].append({
+                            'id': permohonan_id,
+                            'reason': 'Unauthorized - not your permohonan'
+                        })
+                        continue
+                    
+                    if permohonan.status_permohonan not in ['pending', 'disetujui']:
+                        results['failed'].append({
+                            'id': permohonan_id,
+                            'reason': f'Cannot sign (status: {permohonan.status_permohonan})'
+                        })
+                        continue
+                    
+                    if not permohonan.file_path:
+                        results['failed'].append({
+                            'id': permohonan_id,
+                            'reason': 'No file attached'
+                        })
+                        continue
+                    
+                    # Process signature (tanpa commit individual)
+                    success, mahasiswa_email = self._process_single_signature_batch(
+                        permohonan, dosen, dosen_id
+                    )
+                    
+                    if success:
+                        results['success'].append({
+                            'id': permohonan_id,
+                            'judul': permohonan.judul
+                        })
+                        
+                        # Collect email info
+                        if mahasiswa_email:
+                            if mahasiswa_email not in emails_to_send:
+                                emails_to_send[mahasiswa_email] = {
+                                    'nama': permohonan.mahasiswa.user.nama,
+                                    'permohonan_list': []
+                                }
+                            emails_to_send[mahasiswa_email]['permohonan_list'].append({
+                                'judul': permohonan.judul,
+                                'jenis': permohonan.jenis_permohonan.nama_jenis_permohonan if permohonan.jenis_permohonan else '-'
+                            })
+                    else:
+                        results['failed'].append({
+                            'id': permohonan_id,
+                            'reason': 'Signature processing failed'
+                        })
+                        
+                except Exception as e:
+                    print(f"❌ Error processing permohonan {permohonan_id}: {str(e)}")
+                    results['failed'].append({
+                        'id': permohonan_id,
+                        'reason': str(e)
+                    })
+                    continue
+            
+            # Commit all changes at once
+            db.session.commit()
+            print(f"✅ Batch commit successful: {len(results['success'])} permohonan")
+            
+            # Send batch email notifications
+            if emails_to_send:
+                self._send_batch_notifications(emails_to_send, dosen.nama_lengkap)
+            
+            return results, None
+            
+        except Exception as e:
+            db.session.rollback()
+            print(f"❌ Batch signing failed, rolled back: {str(e)}")
+            return None, f"Failed to batch sign permohonan: {str(e)}"
+
+
+    def _process_single_signature_batch(self, permohonan, dosen, dosen_id: str):
+        """Process signature untuk single permohonan dalam batch (tanpa commit)"""
+        try:
+            # Get mahasiswa data
+            from app.models.mahasiswa_model import Mahasiswa
+            mahasiswa = db.session.query(Mahasiswa).filter_by(user_id=permohonan.id_mahasiswa).first()
+            if not mahasiswa:
+                return False, None
+            
+            # Generate QR code
+            qr_data = {
+                'permohonan_id': str(permohonan.id),
+                'signed_by': dosen_id,
+                'signed_at': datetime.utcnow().isoformat(),
+                'request_by': {
+                    'nama': mahasiswa.user.nama if mahasiswa.user else 'Unknown',
+                    'nomor_induk': mahasiswa.user.nomor_induk
+                }
+            }
+            
+            qr_filename, qr_data_string, qr_error = generate_qr_code(qr_data, permohonan.id)
+            if qr_error:
+                print(f"❌ QR generation failed for {permohonan.id}: {qr_error}")
+                return False, None
+            
+            # Add signature to PDF
+            signed_pdf_error = self._add_signature_to_permohonan_pdf(
+                permohonan, 
+                dosen.ttd_path, 
+                qr_filename,
+                dosen_id
+            )
+            if signed_pdf_error:
+                print(f"❌ PDF signing failed for {permohonan.id}: {signed_pdf_error}")
+                return False, None
+            
+            # Update status (tanpa commit - akan di-commit batch)
+            permohonan.status_permohonan = 'ditandatangani'
+            permohonan.signed_at = datetime.utcnow()
+            permohonan.qr_code_path = qr_filename
+            permohonan.qr_code_data = qr_data_string
+            
+            # Delete original file
+            from utils.file_utils import delete_file
+            if permohonan.file_path:
+                delete_file(permohonan.file_path)
+            
+            # Return mahasiswa email for batch notification
+            mahasiswa_email = mahasiswa.user.email if mahasiswa.user else None
+            return True, mahasiswa_email
+            
+        except Exception as e:
+            print(f"❌ Error processing signature for permohonan {permohonan.id}: {str(e)}")
+            return False, None
+
+
+    def _send_batch_notifications(self, emails_to_send: dict, dosen_name: str):
+        """Send batch email notifications"""
+        from utils.email_utils import send_batch_permohonan_email
+        
+        for email, data in emails_to_send.items():
+            try:
+                status, err = send_batch_permohonan_email(
+                    email,
+                    data['nama'],
+                    dosen_name,
+                    data['permohonan_list']
+                )
+                if not status:
+                    print(f"❌ Email send failed to {email}: {err}")
+                else:
+                    print(f"✅ Batch email sent to {email}")
+            except Exception as e:
+                print(f"❌ Error sending email to {email}: {str(e)}")

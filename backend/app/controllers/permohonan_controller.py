@@ -245,3 +245,39 @@ def get_permohonan_for_dosen(current_user):
         return error_response("Failed to get permohonan for dosen", str(e), 500)
 
     
+# controllers/permohonan_controller.py
+@permohonan_bp.route('/batch-sign', methods=['POST'])
+@role_required('dosen')
+def batch_sign_permohonan(current_user):
+    """Batch sign multiple permohonan (dosen only)"""
+    try:
+        # Check if dosen has uploaded signature
+        if not current_user.ttd_path:
+            return error_response("Please upload your signature first", status_code=400)
+        
+        data = request.json or {}
+        permohonan_ids = data.get('permohonan_ids', [])
+        
+        if not permohonan_ids or not isinstance(permohonan_ids, list):
+            return error_response("permohonan_ids must be a non-empty array", status_code=400)
+        
+        # Call batch sign service
+        result, error = permohonan_service.batch_sign_permohonan(
+            permohonan_ids, 
+            current_user.id
+        )
+        
+        if error:
+            return error_response(error, status_code=400)
+        
+        # Format response
+        return success_response(
+            f"Batch signing completed: {len(result['success'])} success, {len(result['failed'])} failed",
+            result,
+            200
+        )
+        
+    except Exception as e:
+        print("❌ Batch sign error:", str(e))
+        print(traceback.format_exc())
+        return error_response("Failed to batch sign permohonan", str(e), 500)
