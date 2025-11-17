@@ -28,7 +28,7 @@
         >
           <CircleUser class="w-5 h-5 text-white" />
         </div>
-        <span class="text-gray-700 font-medium text-sm">{{ dosen.nama }}</span>
+        <span class="text-gray-700 font-medium text-sm">Dosen</span>
       </div>
 
       <button

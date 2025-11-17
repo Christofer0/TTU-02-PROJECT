@@ -51,9 +51,27 @@
             class="hover:bg-orange-50 transition-all"
           >
             <td class="p-3 border text-center">{{ index + 1 }}</td>
-            <td class="p-3 border">{{ permohonan.judul }}</td>
-            <td class="p-3 border">{{ permohonan.mahasiswa?.user?.nama }}</td>
-            <td class="p-3 border text-gray-700">{{ permohonan.deskripsi }}</td>
+
+            <!-- Judul -->
+            <td class="p-3 border">
+              <div class="line-clamp-2">
+                {{ permohonan.judul }}
+              </div>
+            </td>
+
+            <!-- Nama Mahasiswa -->
+            <td class="p-3 border">
+              {{ permohonan.mahasiswa?.user?.nama }}
+            </td>
+
+            <!-- Deskripsi -->
+            <td class="p-3 border text-gray-700">
+              <div class="line-clamp-1">
+                {{ permohonan.deskripsi }}
+              </div>
+            </td>
+
+            <!-- Status -->
             <td class="p-3 border text-center">
               <span
                 :class="getStatusClass(permohonan.status_permohonan)"
@@ -62,6 +80,8 @@
                 {{ getStatusText(permohonan.status_permohonan) }}
               </span>
             </td>
+
+            <!-- File -->
             <td class="p-3 border text-center">
               <div v-if="permohonan.file_signed_path" class="space-y-1">
                 <a
@@ -90,9 +110,10 @@
               </a>
               <span v-else class="text-gray-400 italic">-</span>
             </td>
+
+            <!-- Aksi -->
             <td class="p-3 border text-center">
               <div class="flex justify-center gap-2 flex-wrap">
-                <!-- Tombol Tandatangani -->
                 <button
                   v-if="
                     ['pending', 'disetujui'].includes(
@@ -103,13 +124,12 @@
                   :disabled="signingPermohonan === permohonan.id"
                   @click="signPermohonan(permohonan.id)"
                 >
-                  <span v-if="signingPermohonan === permohonan.id">
-                    ⏳ Menandatangani...
-                  </span>
+                  <span v-if="signingPermohonan === permohonan.id"
+                    >⏳ Menandatangani...</span
+                  >
                   <span v-else>Tandatangan</span>
                 </button>
 
-                <!-- Tombol Tolak -->
                 <button
                   v-if="permohonan.status_permohonan === 'pending'"
                   class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 shadow-sm"
@@ -128,27 +148,6 @@
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <!-- Pagination -->
-    <div class="mt-6 flex justify-end items-center gap-2 text-sm text-gray-600">
-      <button
-        class="px-3 py-1 border rounded-lg hover:bg-indigo-50 disabled:opacity-50 disabled:hover:bg-transparent"
-        :disabled="page === 1"
-        @click="prevPage"
-      >
-        ◀ Prev
-      </button>
-      <span
-        >Halaman <strong>{{ page }}</strong></span
-      >
-      <button
-        class="px-3 py-1 border rounded-lg hover:bg-indigo-50 disabled:opacity-50 disabled:hover:bg-transparent"
-        :disabled="permohonanList.length < perPage"
-        @click="nextPage"
-      >
-        Next ▶
-      </button>
     </div>
   </div>
 </template>
@@ -309,18 +308,6 @@ export default {
       return texts[status] || status;
     };
 
-    const nextPage = () => {
-      page.value++;
-      fetchPermohonan();
-    };
-
-    const prevPage = () => {
-      if (page.value > 1) {
-        page.value--;
-        fetchPermohonan();
-      }
-    };
-
     onMounted(async () => {
       await fetchJenisPermohonan();
       await fetchPermohonan();
@@ -340,8 +327,6 @@ export default {
       rejectPermohonan,
       getStatusClass,
       getStatusText,
-      nextPage,
-      prevPage,
     };
   },
 };

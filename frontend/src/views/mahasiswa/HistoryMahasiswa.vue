@@ -415,8 +415,11 @@ onMounted(async () => {
                           {{ item.komentar_penolakan }}
                         </div>
                       </div>
-                      <div v-else class="text-sm text-gray-400 font-medium">
-                        -
+                      <div
+                        v-else
+                        class="line-clamp-1 text-sm text-gray-400 font-medium"
+                      >
+                        {{ item.deskripsi }}
                       </div>
                     </div>
                   </td>
