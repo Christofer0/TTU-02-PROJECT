@@ -81,6 +81,18 @@
       </select>
     </div>
 
+    <!-- Info Box -->
+    <div class="mt-4 mb-5 bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <p class="text-sm text-blue-800">
+        <strong>💡 Tips:</strong> Centang permohonan yang ingin ditandatangani,
+        lalu klik tombol
+        <span class="font-semibold">"Tandatangani Semua"</span> untuk proses
+        batch. Hanya permohonan dengan status
+        <span class="font-semibold">Menunggu</span> atau
+        <span class="font-semibold">Disetujui</span> yang dapat ditandatangani.
+      </p>
+    </div>
+
     <!-- Table -->
     <div
       class="overflow-x-auto bg-white shadow-md rounded-xl border border-gray-200"
@@ -217,18 +229,6 @@
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <!-- Info Box -->
-    <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-      <p class="text-sm text-blue-800">
-        <strong>💡 Tips:</strong> Centang permohonan yang ingin ditandatangani,
-        lalu klik tombol
-        <span class="font-semibold">"Tandatangani Semua"</span> untuk proses
-        batch. Hanya permohonan dengan status
-        <span class="font-semibold">Menunggu</span> atau
-        <span class="font-semibold">Disetujui</span> yang dapat ditandatangani.
-      </p>
     </div>
   </div>
 </template>
