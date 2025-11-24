@@ -50,3 +50,5 @@ reportlab==4.0.4
 #Schedular
 APScheduler==3.10.4
 pytz==2024.1
+
+gunicorn==22.0.0

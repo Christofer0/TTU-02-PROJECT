@@ -50,8 +50,8 @@ class GoogleOAuthService:
         Returns: (role, nomor_induk, prodi_id, error)
         """
         # jangan lupa buka
-        # if not email.endswith('@uksw.edu') and not email.endswith('@student.uksw.edu'):
-        #     return None, None, None, "Email harus menggunakan domain @uksw.edu atau @student.uksw.edu"
+        if not email.endswith('@uksw.edu') and not email.endswith('@student.uksw.edu'):
+            return None, None, None, "Email harus menggunakan domain @uksw.edu atau @student.uksw.edu"
         
         # Check if this is the first user (will be admin)
         user_count = self.user_repo.get_user_count()
